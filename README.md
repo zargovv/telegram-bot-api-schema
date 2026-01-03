@@ -1,6 +1,10 @@
 # Telegram Bot API schema
 
-All definitions are located in [`schema.json`](schema.json).
+All definitions are located in [`schema.json`](schema.json)
+
+> Some section are skipped: `Determining list of commands`, `Sending files`, `Accent colors`,
+> `Profile accent colors`, `Inline mode objects`, `Formatting objects`, `Paid broadcasts`, `Inline
+mode methods`
 
 ```ts
 type Schema = Entry[];
