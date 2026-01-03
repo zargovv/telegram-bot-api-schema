@@ -24,6 +24,12 @@ interface UnionEntry {
     variants: Type[];
 }
 
+interface EntryField {
+    name: string;
+    type: Type;
+    description: string;
+}
+
 type Type = PrimitiveType | ArrayType | ObjectType | UnionType | OptionalType;
 
 type PrimitiveType = "True" | "Boolean" | "Integer" | "Float" | "String";
