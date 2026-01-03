@@ -41,7 +41,6 @@ pub enum Type {
     String,
     Array(Box<Type>),
     Object(String),
-    // handle `<li>` elements
     Union(Vec<Type>),
     Optional(Box<Type>),
 }
