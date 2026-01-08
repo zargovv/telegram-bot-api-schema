@@ -7,11 +7,12 @@ use serde::Serialize;
 
 use crate::libc::{MemchrExt, memrchr};
 
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Clone, Copy)]
 pub enum EntryKind {
     Object,
     Method,
     Union,
+    Enum,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -91,6 +92,11 @@ pub struct EntryField {
 }
 
 #[derive(Debug, Serialize)]
+pub struct EnumVariant {
+    pub id: String,
+}
+
+#[derive(Debug, Serialize)]
 #[serde(tag = "kind", rename_all = "camelCase")]
 pub enum SchemaEntry {
     Object {
@@ -105,6 +111,72 @@ pub enum SchemaEntry {
         name: String,
         variants: Vec<Type>,
     },
+    Enum {
+        name: String,
+        variants: Vec<EnumVariant>,
+    },
+}
+
+fn collect_fields(entry_kind: EntryKind, mut table: &[u8]) -> Vec<EntryField> {
+    let mut fields = Vec::<EntryField>::new();
+
+    while let Some((field, rest)) = table.find_between(b"<td>", b"</td>") {
+        let (ty, mut rest) = rest
+            .find_between(b"<td>", b"</td>")
+            .expect("column `type` expected");
+        let mut ty = Type::try_from(ty).expect("failed to identify type");
+        let required = if entry_kind == EntryKind::Method {
+            let (required, rest_) = rest
+                .find_between(b"<td>", b"</td>")
+                .expect("column `required` expected");
+            rest = rest_;
+            Some(Required::try_from(required).expect("invalid `required` column value"))
+        } else {
+            None
+        };
+        let (mut description, rest) = rest
+            .find_between(b"<td>", b"</td>")
+            .expect("column `description` expected");
+        table = rest;
+
+        let optional = if let Some(desc) = description.strip_prefix(b"<em>Optional</em>. ") {
+            description = desc;
+            true
+        } else {
+            required == Some(Required::Optional)
+        };
+        if optional {
+            ty = Type::Optional(Box::new(ty));
+        }
+
+        // println!("field = {} {ty:?}", unsafe {
+        //     str::from_utf8_unchecked(field)
+        // });
+
+        fields.push(EntryField {
+            name: str::from_utf8(field)
+                .expect("invalid field name")
+                .to_owned(),
+            ty,
+            description: String::from_utf8(html_encoding::decode(description))
+                .expect("invalid description"),
+        });
+    }
+
+    fields
+}
+
+fn collect_union_variants(mut table: &[u8]) -> Vec<Type> {
+    let mut variants = Vec::<Type>::new();
+    while let Some((variant, rest)) = table.find_between(b"<li>", b"</li>") {
+        table = rest;
+        variants.push(Type::try_from(variant).expect("failed to identify union type"));
+    }
+    variants
+}
+
+fn collect_enum_variants(mut table: &[u8]) -> Vec<EnumVariant> {
+    todo!()
 }
 
 fn main() {
@@ -132,16 +204,20 @@ fn main() {
 
         heading = memrchr(heading, b'>').map_or(heading, |pos| &heading[pos + 1..]);
 
-        if heading.contains(&b' ') {
+        if matches!(
+            heading,
+            b"Determining list of commands"
+                | b"Sending files"
+                | b"Inline mode objects"
+                | b"Formatting options"
+                | b"Paid Broadcasts"
+                | b"Inline mode methods"
+                | b"Accent colors"
+                | b"Profile accent colors"
+        ) {
             eprintln!("skip: {}", unsafe { str::from_utf8_unchecked(heading) });
             continue;
         }
-
-        let mut entry_kind = if heading.first().expect("empty heading").is_ascii_uppercase() {
-            EntryKind::Object
-        } else {
-            EntryKind::Method
-        };
 
         let (mut table, rest) = body.find_until(b"<h4>").unwrap_or((body, &[]));
         body = rest;
@@ -149,65 +225,36 @@ fn main() {
             table = t;
         }
 
-        let mut variants = Vec::<Type>::new();
-        while let Some((variant, rest)) = table.find_between(b"<li>", b"</li>") {
-            table = rest;
-            entry_kind = EntryKind::Union;
-
-            variants.push(Type::try_from(variant).expect("failed to identify union type"));
-        }
-
-        let mut fields = Vec::<EntryField>::new();
-        while let Some((field, rest)) = table.find_between(b"<td>", b"</td>") {
-            let (ty, mut rest) = rest
-                .find_between(b"<td>", b"</td>")
-                .expect("column `type` expected");
-            let mut ty = Type::try_from(ty).expect("failed to identify type");
-            let required = if entry_kind == EntryKind::Method {
-                let (required, rest_) = rest
-                    .find_between(b"<td>", b"</td>")
-                    .expect("column `required` expected");
-                rest = rest_;
-                Some(Required::try_from(required).expect("invalid `required` column value"))
-            } else {
-                None
-            };
-            let (mut description, rest) = rest
-                .find_between(b"<td>", b"</td>")
-                .expect("column `description` expected");
-            table = rest;
-
-            let optional = if let Some(desc) = description.strip_prefix(b"<em>Optional</em>. ") {
-                description = desc;
-                true
-            } else {
-                required == Some(Required::Optional)
-            };
-            if optional {
-                ty = Type::Optional(Box::new(ty));
-            }
-
-            // println!("field = {} {ty:?}", unsafe {
-            //     str::from_utf8_unchecked(field)
-            // });
-
-            fields.push(EntryField {
-                name: str::from_utf8(field)
-                    .expect("invalid field name")
-                    .to_owned(),
-                ty,
-                description: String::from_utf8(html_encoding::decode(description))
-                    .expect("invalid description"),
-            });
-        }
+        let entry_kind = if table.find_needle(b"<li>").is_some() {
+            EntryKind::Union
+        } else if table.find_needle(b"table-bordered").is_some() {
+            EntryKind::Enum
+        } else if heading.first().expect("empty heading").is_ascii_uppercase() {
+            EntryKind::Object
+        } else {
+            EntryKind::Method
+        };
 
         let name = str::from_utf8(heading)
             .expect("invalid entry name")
             .to_owned();
         entries.push(match entry_kind {
-            EntryKind::Object => SchemaEntry::Object { name, fields },
-            EntryKind::Method => SchemaEntry::Method { name, fields },
-            EntryKind::Union => SchemaEntry::Union { name, variants },
+            kind @ EntryKind::Object => SchemaEntry::Object {
+                name,
+                fields: collect_fields(kind, table),
+            },
+            kind @ EntryKind::Method => SchemaEntry::Method {
+                name,
+                fields: collect_fields(kind, table),
+            },
+            EntryKind::Union => SchemaEntry::Union {
+                name,
+                variants: collect_union_variants(table),
+            },
+            EntryKind::Enum => SchemaEntry::Enum {
+                name,
+                variants: collect_enum_variants(table),
+            },
         });
     }
 
