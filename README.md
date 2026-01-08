@@ -8,7 +8,7 @@ All definitions are located in [`schema.json`](schema.json)
 ```ts
 type Schema = Entry[];
 
-type Entry = ObjectEntry | MethodEntry | UnionEntry;
+type Entry = ObjectEntry | MethodEntry | UnionEntry | EnumEntry;
 
 interface ObjectEntry {
     kind: "object";
@@ -25,6 +25,17 @@ interface MethodEntry {
 interface UnionEntry {
     kind: "union";
     variants: Type[];
+}
+
+interface EnumEntry {
+    kind: "union";
+    variants: AccentColor[];
+}
+
+interface AccentColor {
+    "Color identifier": string;
+    "Light colors": string;
+    "Dark colors": string;
 }
 
 interface EntryField {
