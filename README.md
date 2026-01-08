@@ -2,9 +2,8 @@
 
 All definitions are located in [`schema.json`](schema.json)
 
-> Some section are skipped: `Determining list of commands`, `Sending files`, `Accent colors`,
-> `Profile accent colors`, `Inline mode objects`, `Formatting objects`, `Paid broadcasts`, `Inline
-mode methods`
+> Some section are skipped: `Determining list of commands`, `Sending files`, `Inline mode objects`,
+> `Formatting options`, `Paid Broadcasts`, `Inline mode methods`
 
 ```ts
 type Schema = Entry[];

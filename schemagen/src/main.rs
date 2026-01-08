@@ -92,8 +92,15 @@ pub struct EntryField {
 }
 
 #[derive(Debug, Serialize)]
-pub struct EnumVariant {
+pub struct AccentColor {
+    // field names are preserved to keep the API backward-compatible once the enum type definition
+    // becomes more generic
+    #[serde(rename = "Color identifier")]
     pub id: String,
+    #[serde(rename = "Light colors")]
+    pub light_colors: String,
+    #[serde(rename = "Dark colors")]
+    pub dark_colors: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -113,7 +120,9 @@ pub enum SchemaEntry {
     },
     Enum {
         name: String,
-        variants: Vec<EnumVariant>,
+        // currently enum type is hard-coded because `Accent colors` and `Profile accent colors` are
+        // the only enumerations present in the documentation
+        variants: Vec<AccentColor>,
     },
 }
 
@@ -175,8 +184,24 @@ fn collect_union_variants(mut table: &[u8]) -> Vec<Type> {
     variants
 }
 
-fn collect_enum_variants(mut table: &[u8]) -> Vec<EnumVariant> {
-    todo!()
+fn collect_enum_variants(mut table: &[u8]) -> Vec<AccentColor> {
+    let mut variants = Vec::<AccentColor>::new();
+    while let Some((id, rest)) = table.find_between(b"<td>", b"</td>") {
+        let (light_colors, rest) = rest
+            .find_between(b"<td>", b"</td>")
+            .expect("column `Light colors` is expected");
+        let (dark_colors, rest) = rest
+            .find_between(b"<td>", b"</td>")
+            .expect("column `Light colors` is expected");
+        table = rest;
+
+        variants.push(AccentColor {
+            id: unsafe { str::from_utf8_unchecked(id) }.to_owned(),
+            light_colors: unsafe { str::from_utf8_unchecked(light_colors) }.to_owned(),
+            dark_colors: unsafe { str::from_utf8_unchecked(dark_colors) }.to_owned(),
+        });
+    }
+    variants
 }
 
 fn main() {
@@ -212,8 +237,6 @@ fn main() {
                 | b"Formatting options"
                 | b"Paid Broadcasts"
                 | b"Inline mode methods"
-                | b"Accent colors"
-                | b"Profile accent colors"
         ) {
             eprintln!("skip: {}", unsafe { str::from_utf8_unchecked(heading) });
             continue;
