@@ -13,24 +13,28 @@ type Entry = ObjectEntry | MethodEntry | UnionEntry | EnumEntry;
 interface ObjectEntry {
     kind: "object";
     name: string;
+    description: string;
     fields: EntryField[];
 }
 
 interface MethodEntry {
     kind: "method";
     name: string;
+    description: string;
     fields: EntryField[];
 }
 
 interface UnionEntry {
     kind: "union";
     name: string;
+    description: string;
     variants: Type[];
 }
 
 interface EnumEntry {
     kind: "enum";
     name: string;
+    description: string;
     variants: AccentColor[];
 }
 

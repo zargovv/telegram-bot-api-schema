@@ -108,18 +108,22 @@ pub struct AccentColor {
 pub enum SchemaEntry {
     Object {
         name: String,
+        description: String,
         fields: Vec<EntryField>,
     },
     Method {
         name: String,
+        description: String,
         fields: Vec<EntryField>,
     },
     Union {
         name: String,
+        description: String,
         variants: Vec<Type>,
     },
     Enum {
         name: String,
+        description: String,
         // currently enum type is hard-coded because `Accent colors` and `Profile accent colors` are
         // the only enumerations present in the documentation
         variants: Vec<AccentColor>,
@@ -225,9 +229,11 @@ fn main() {
 
     let mut entries = Vec::<SchemaEntry>::new();
     while let Some((mut heading, rest)) = body.find_between(b"<h4>", b"</h4>") {
-        body = rest;
-
         heading = memrchr(heading, b'>').map_or(heading, |pos| &heading[pos + 1..]);
+        let (description, rest) = rest
+            .find_between(b"<p>", b"</p>")
+            .expect("description expected");
+        body = rest;
 
         if matches!(
             heading,
@@ -261,21 +267,28 @@ fn main() {
         let name = str::from_utf8(heading)
             .expect("invalid entry name")
             .to_owned();
+        let description = str::from_utf8(description)
+            .expect("invalid description")
+            .to_owned();
         entries.push(match entry_kind {
             kind @ EntryKind::Object => SchemaEntry::Object {
                 name,
+                description,
                 fields: collect_fields(kind, table),
             },
             kind @ EntryKind::Method => SchemaEntry::Method {
                 name,
+                description,
                 fields: collect_fields(kind, table),
             },
             EntryKind::Union => SchemaEntry::Union {
                 name,
+                description,
                 variants: collect_union_variants(table),
             },
             EntryKind::Enum => SchemaEntry::Enum {
                 name,
+                description,
                 variants: collect_enum_variants(table),
             },
         });
