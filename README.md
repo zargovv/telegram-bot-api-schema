@@ -24,11 +24,13 @@ interface MethodEntry {
 
 interface UnionEntry {
     kind: "union";
+    name: string;
     variants: Type[];
 }
 
 interface EnumEntry {
-    kind: "union";
+    kind: "enum";
+    name: string;
     variants: AccentColor[];
 }
 
@@ -49,7 +51,7 @@ type Type = PrimitiveType | ArrayType | ObjectType | UnionType | OptionalType;
 type PrimitiveType = "True" | "Boolean" | "Integer" | "Float" | "String";
 
 type ArrayType = { Array: Type };
-type ObjectType = { Object: Type };
+type ObjectType = { Object: string };
 type UnionType = { Union: Type[] };
 type OptionalType = { Optional: Type };
 ```
