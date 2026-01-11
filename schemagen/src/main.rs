@@ -5,7 +5,7 @@ pub mod libc;
 
 use serde::Serialize;
 
-use crate::libc::{MemchrExt, memrchr};
+use crate::libc::{MemchrExt, memrchr, memrmem};
 
 #[derive(PartialEq, Eq, Clone, Copy)]
 pub enum EntryKind {
@@ -220,7 +220,7 @@ fn resolve_return_type(description: &str) -> Type {
     let rest = if let Some(rest) = description.as_bytes().find_after(b"On success") {
         rest
     } else {
-        let Some(pos) = description.rfind("Returns ") else {
+        let Some(pos) = memrmem(description.as_bytes(), b"Returns ") else {
             unreachable!("failed to resolve return definition");
         };
         &description.as_bytes()[pos..]

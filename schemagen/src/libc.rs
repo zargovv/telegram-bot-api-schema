@@ -49,6 +49,22 @@ pub fn memmem(mut haystack: &[u8], needle: &[u8]) -> Option<usize> {
     None
 }
 
+#[must_use]
+pub fn memrmem(haystack: &[u8], needle: &[u8]) -> Option<usize> {
+    if needle.is_empty() {
+        return Some(haystack.len());
+    }
+
+    let mut limit = haystack.len();
+    while let Some(pos) = memrchr(&haystack[..limit], needle[0]) {
+        if haystack[pos..].starts_with(needle) {
+            return Some(pos);
+        }
+        limit = pos;
+    }
+    None
+}
+
 pub fn memchr(haystack: &[u8], c: impl Into<core::ffi::c_int>) -> Option<usize> {
     let ptr = unsafe { sys::memchr(haystack.as_ptr().cast(), c.into(), haystack.len()) };
     (!ptr.is_null()).then(|| (ptr as usize) - (haystack.as_ptr() as usize))
@@ -207,5 +223,35 @@ mod tests {
     fn test_memchr_zero_byte() {
         let hay = b"a\0b";
         assert_eq!(memchr(hay, 0), Some(1));
+    }
+
+    #[test]
+    fn test_memrmem_empty_needle() {
+        let hay = b"abcdef";
+        let needle: &[u8] = b"";
+        assert_eq!(memrmem(hay, needle), Some(6));
+    }
+
+    #[test]
+    fn test_memrmem_found_positions() {
+        let hay = b"hello world";
+        assert_eq!(memrmem(hay, b"hello"), Some(0));
+        assert_eq!(memrmem(hay, b"world"), Some(6));
+        assert_eq!(memrmem(hay, b"o w"), Some(4));
+    }
+
+    #[test]
+    fn test_memrmem_not_found() {
+        let hay = b"abc";
+        assert_eq!(memrmem(hay, b"z"), None);
+    }
+
+    #[test]
+    fn test_memrmem_multiple_and_overlap() {
+        let hay = b"ababab";
+        assert_eq!(memrmem(hay, b"bab"), Some(3));
+
+        let hay2 = b"aaaaa";
+        assert_eq!(memrmem(hay2, b"aaa"), Some(2));
     }
 }
