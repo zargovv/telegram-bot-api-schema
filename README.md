@@ -22,6 +22,7 @@ interface MethodEntry {
     name: string;
     description: string;
     fields: EntryField[];
+    returns: Type;
 }
 
 interface UnionEntry {

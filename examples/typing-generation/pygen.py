@@ -27,6 +27,7 @@ class MethodEntry(TypedDict):
     name: str
     description: str
     fields: list[EntryField]
+    returns: Type
 
 
 class UnionEntry(TypedDict):
