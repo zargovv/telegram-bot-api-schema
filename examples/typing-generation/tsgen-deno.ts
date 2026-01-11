@@ -173,6 +173,17 @@ ${formatDescription(f.description)
             const def = `${desc}${lintIgnore}export interface ${name}`;
             const sep = fields.length < 1 ? "" : "\n";
             await outputFile.write(te.encode(`${def} {${sep}${fields.join("\n")}${sep}}\n`));
+
+            if (kind === "method") {
+                await outputFile.write(
+                    te.encode(
+                        `export type ${titlecase(entry.name)}Response = ${convertType(
+                            entry.returns,
+                        )}\n`,
+                    ),
+                );
+            }
+
             break;
         }
         case "union":

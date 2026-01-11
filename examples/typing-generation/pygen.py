@@ -151,6 +151,12 @@ with Path("examples/typing-generation/typing.pyi").open("w") as file:
                     else entry["name"]
                 )
                 file.write(f"class {name}(TypedDict):\n{'\n'.join(fields)}\n")
+
+                if entry["kind"] == "method":
+                    file.write(
+                        f"type {titlecase(entry['name'])}Response = "
+                        f"{convert_type(entry['returns'])}\n",
+                    )
             case "union":
                 file.write(
                     f"type {entry['name']} = "
