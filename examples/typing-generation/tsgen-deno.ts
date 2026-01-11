@@ -66,9 +66,9 @@ const DOCS_BASE_URI = "https://core.telegram.org/bots/api";
 
 const te = new TextEncoder();
 
-const schema: Schema = JSON.parse(await Deno.readTextFile("../../schema.json"));
+const schema: Schema = JSON.parse(await Deno.readTextFile("schema.json"));
 
-const outputFile = await Deno.create("typing.d.ts");
+const outputFile = await Deno.create("examples/typing-generation/typing.d.ts");
 outputFile.write(te.encode("// this file is auto-generated\n\n"));
 
 function convertType(ty: Type): string;
@@ -168,7 +168,7 @@ ${formatDescription(f.description)
             let lintIgnore = "";
             if (fields.length < 1) lintIgnore += "// deno-lint-ignore no-empty-interface\n";
 
-            const name = kind === "method" ? titlecase(entry.name) : entry.name;
+            const name = kind === "method" ? titlecase(entry.name) + "Request" : entry.name;
             const def = `${desc}${lintIgnore}export interface ${name}`;
             const sep = fields.length < 1 ? "" : "\n";
             await outputFile.write(te.encode(`${def} {${sep}${fields.join("\n")}${sep}}\n`));

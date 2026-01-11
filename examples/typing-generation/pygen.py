@@ -59,7 +59,7 @@ class ObjectEntry(TypedDict):
     fields: list[EntryField]
 
 
-schema: list[SchemaEntry] = json.loads(Path("../../schema.json").read_bytes())
+schema: list[SchemaEntry] = json.loads(Path("schema.json").read_bytes())
 
 
 def convert_type(ty: Type) -> str:
@@ -130,7 +130,7 @@ def safename(s: str) -> str:
             return s
 
 
-with Path("typing.pyi").open("w") as file:
+with Path("examples/typing-generation/typing.pyi").open("w") as file:
     file.write(
         "# this file is auto-generated\n\n"
         "from enum import Enum\nfrom typing import Literal, TypedDict\n\n",

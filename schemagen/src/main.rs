@@ -54,7 +54,10 @@ impl TryFrom<&[u8]> for Type {
             (Self::True, rest)
         } else if let Some(rest) = value.strip_prefix(b"Boolean") {
             (Self::Boolean, rest)
-        } else if let Some(rest) = value.strip_prefix(b"Integer") {
+        } else if let Some(rest) = value
+            .strip_prefix(b"Integer")
+            .or_else(|| value.strip_prefix(b"Int"))
+        {
             (Self::Integer, rest)
         } else if let Some(rest) = value.strip_prefix(b"Float") {
             (Self::Float, rest)
@@ -70,7 +73,10 @@ impl TryFrom<&[u8]> for Type {
             )
         };
 
-        if let Some(extra) = rest.strip_prefix(b" or ") {
+        if let Some(extra) = rest
+            .strip_prefix(b" or ")
+            .or_else(|| rest.find_after(b"otherwise <em>"))
+        {
             ty = Type::Union(match Type::try_from(extra)? {
                 Type::Union(mut items) => {
                     items.push(ty);
@@ -79,6 +85,7 @@ impl TryFrom<&[u8]> for Type {
                 extra => vec![extra, ty],
             });
         }
+
         Ok(ty)
     }
 }
@@ -115,6 +122,7 @@ pub enum SchemaEntry {
         name: String,
         description: String,
         fields: Vec<EntryField>,
+        returns: Type,
     },
     Union {
         name: String,
@@ -208,6 +216,26 @@ fn collect_enum_variants(mut table: &[u8]) -> Vec<AccentColor> {
     variants
 }
 
+fn resolve_return_type(description: &str) -> Type {
+    let rest = if let Some(rest) = description.as_bytes().find_after(b"On success") {
+        rest
+    } else {
+        let Some(pos) = description.rfind("Returns ") else {
+            unreachable!("failed to resolve return definition");
+        };
+        &description.as_bytes()[pos..]
+    };
+
+    let ty = rest
+        .find_needle(b"Array")
+        .or_else(|| rest.find_needle(b"<a"))
+        .map(|pos| &rest[pos..])
+        .or_else(|| rest.find_between(b"<em>", b"</em>").map(|v| v.0))
+        .expect("failed to resolve return type");
+    // println!("ty = {:?}", unsafe { str::from_utf8_unchecked(ty) });
+    Type::try_from(ty).expect("unreachable")
+}
+
 fn main() {
     let client = reqwest::blocking::Client::builder()
         .build()
@@ -275,11 +303,15 @@ fn main() {
                 description,
                 fields: collect_fields(kind, table),
             },
-            kind @ EntryKind::Method => SchemaEntry::Method {
-                name,
-                description,
-                fields: collect_fields(kind, table),
-            },
+            kind @ EntryKind::Method => {
+                let returns = resolve_return_type(&description);
+                SchemaEntry::Method {
+                    name,
+                    description,
+                    fields: collect_fields(kind, table),
+                    returns,
+                }
+            }
             EntryKind::Union => SchemaEntry::Union {
                 name,
                 description,
