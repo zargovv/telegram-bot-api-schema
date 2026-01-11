@@ -179,7 +179,7 @@ ${formatDescription(f.description)
                     te.encode(
                         `export type ${titlecase(entry.name)}Response = ${convertType(
                             entry.returns,
-                        )}\n`,
+                        )};\n`,
                     ),
                 );
             }
