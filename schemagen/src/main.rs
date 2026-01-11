@@ -267,9 +267,8 @@ fn main() {
         let name = str::from_utf8(heading)
             .expect("invalid entry name")
             .to_owned();
-        let description = str::from_utf8(description)
-            .expect("invalid description")
-            .to_owned();
+        let description =
+            String::from_utf8(html_encoding::decode(description)).expect("invalid description");
         entries.push(match entry_kind {
             kind @ EntryKind::Object => SchemaEntry::Object {
                 name,
