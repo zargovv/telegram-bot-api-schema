@@ -2,6 +2,8 @@
 
 mod libc;
 
+use core::iter::once;
+
 pub use serde;
 use serde::{Deserialize, Serialize};
 pub use serde_json;
@@ -111,4 +113,28 @@ pub enum SchemaEntry {
         // the only enumerations present in the documentation
         variants: Vec<AccentColor>,
     },
+}
+
+impl SchemaEntry {
+    #[must_use]
+    pub fn iter_types<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Type> + 'a> {
+        match self {
+            SchemaEntry::Object { fields, .. } => Box::new(fields.iter().map(|f| &f.ty)),
+            SchemaEntry::Method {
+                fields, returns, ..
+            } => Box::new(fields.iter().map(|f| &f.ty).chain(once(returns))),
+            SchemaEntry::Union { variants, .. } => Box::new(variants.iter()),
+            SchemaEntry::Enum { .. } => Box::new(core::iter::empty()),
+        }
+    }
+
+    #[must_use]
+    pub fn name(&self) -> &str {
+        match self {
+            SchemaEntry::Object { name, .. }
+            | SchemaEntry::Method { name, .. }
+            | SchemaEntry::Union { name, .. }
+            | SchemaEntry::Enum { name, .. } => name,
+        }
+    }
 }

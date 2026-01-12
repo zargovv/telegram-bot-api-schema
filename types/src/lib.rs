@@ -1,6 +1,10 @@
 #![feature(bool_to_result)]
 
-#[allow(clippy::doc_markdown)]
+#[allow(
+    clippy::doc_markdown,
+    clippy::struct_excessive_bools,
+    clippy::large_enum_variant
+)]
 mod r#gen;
 
 pub use r#gen::*;
