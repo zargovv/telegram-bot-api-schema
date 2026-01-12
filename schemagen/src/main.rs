@@ -190,7 +190,7 @@ fn main() {
         let name = str::from_utf8(heading)
             .expect("invalid entry name")
             .to_owned();
-        let description =
+        let mut description =
             String::from_utf8(html_encoding::decode(description)).expect("invalid description");
         entries.push(match entry_kind {
             kind @ EntryKind::Object => SchemaEntry::Object {
@@ -207,11 +207,15 @@ fn main() {
                     returns,
                 }
             }
-            EntryKind::Union => SchemaEntry::Union {
-                name,
-                description,
-                variants: collect_union_variants(table),
-            },
+            EntryKind::Union => {
+                let pos = description.rfind('.').expect("invalid union description");
+                description.truncate(pos + 1);
+                SchemaEntry::Union {
+                    name,
+                    description,
+                    variants: collect_union_variants(table),
+                }
+            }
             EntryKind::Enum => SchemaEntry::Enum {
                 name,
                 description,
