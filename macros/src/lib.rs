@@ -1,5 +1,7 @@
+#![feature(trim_prefix_suffix)]
+
 use quote::{quote, quote_spanned};
-use syn::{Attribute, ItemStruct, Type, parse, spanned::Spanned};
+use syn::{Attribute, Ident, ItemStruct, Type, parse, spanned::Spanned};
 
 struct MethodAttributes {
     name: proc_macro2::Literal,
@@ -133,6 +135,7 @@ pub fn method(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
         let mut ser_fields = TokenStream::new();
         let mut new_params = TokenStream::new();
         let mut new_self_fields = TokenStream::new();
+        let mut builder_methods = TokenStream::new();
 
         for f in &input.fields {
             let Some(ident) = &f.ident else {
@@ -141,15 +144,24 @@ pub fn method(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
             let name = ident.to_string();
             ser_fields.extend(quote!(ser_struct.serialize_field(#name, &self.#ident)?;));
 
+            let ty = &f.ty;
             if matches!(&f.ty, Type::Path(p) if p.path.segments.first().is_some_and(|s| s.ident == "Option"))
             {
                 new_self_fields.extend(quote!(#ident: None,));
             } else {
                 // required field
-                let ty = &f.ty;
                 new_params.extend(quote!(#ident: #ty,));
                 new_self_fields.extend(quote!(#ident,));
             }
+
+            let builder_ident =
+                Ident::new(&format!("with_{}", name.trim_prefix("r#")), ident.span());
+            builder_methods.extend(
+                quote!(pub fn #builder_ident(&mut self, #ident: #ty) -> &mut Self {
+                    self.#ident = #ident;
+                    self
+                }),
+            );
         }
 
         quote! {
@@ -172,6 +184,8 @@ pub fn method(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
                 pub fn new(#new_params) -> Self {
                     Self { #new_self_fields }
                 }
+
+                #builder_methods
             }
         }
     }

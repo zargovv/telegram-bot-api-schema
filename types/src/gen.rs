@@ -2,12 +2,6 @@
 
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
-pub enum ChatId {
-    Integer(i64),
-    String(String),
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(untagged)]
 pub enum MessageOrTrue {
     Message(Message),
     True(crate::True),
@@ -19,6 +13,12 @@ pub enum ReplyMarkup {
     ReplyKeyboardMarkup(ReplyKeyboardMarkup),
     ReplyKeyboardRemove(ReplyKeyboardRemove),
     ForceReply(ForceReply),
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(untagged)]
+pub enum ChatId {
+    Integer(i64),
+    String(String),
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
