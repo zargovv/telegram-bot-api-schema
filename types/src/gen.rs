@@ -2,14 +2,14 @@
 
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
-pub enum IntegerOrString {
-    Integer(i64),
+pub enum InputFileOrString {
+    InputFile(InputFile),
     String(String),
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
-pub enum InputFileOrString {
-    InputFile(InputFile),
+pub enum IntegerOrString {
+    Integer(i64),
     String(String),
 }
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -30,33 +30,24 @@ pub enum MessageOrTrue {
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct Update {}
 /// Use this method to receive incoming updates using long polling (<a href="https://en.wikipedia.org/wiki/Push_technology#Long_polling">wiki</a>). Returns an Array of <a href="https://core.telegram.org/bots/api#update">Update</a> objects.
-#[derive(serde::Serialize)]
-pub struct GetUpdatesRequest {}
-impl crate::Method<'_> for GetUpdatesRequest {
-    const NAME: &'static str = "getUpdates";
-    type Response = Vec<Update>;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getUpdates", response(Vec<Update>))]
+pub struct GetUpdatesRequest {
 }
 /// Use this method to specify a URL and receive incoming updates via an outgoing webhook. Whenever there is an update for the bot, we will send an HTTPS POST request to the specified URL, containing a JSON-serialized <a href="https://core.telegram.org/bots/api#update">Update</a>. In case of an unsuccessful request (a request with response <a href="https://en.wikipedia.org/wiki/List_of_HTTP_status_codes">HTTP status code</a> different from <code>2XY</code>), we will repeat the request and give up after a reasonable amount of attempts. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetWebhookRequest {}
-impl crate::Method<'_> for SetWebhookRequest {
-    const NAME: &'static str = "setWebhook";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setWebhook", response(crate::True))]
+pub struct SetWebhookRequest {
 }
 /// Use this method to remove webhook integration if you decide to switch back to <a href="https://core.telegram.org/bots/api#getupdates">getUpdates</a>. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct DeleteWebhookRequest {}
-impl crate::Method<'_> for DeleteWebhookRequest {
-    const NAME: &'static str = "deleteWebhook";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "deleteWebhook", response(crate::True))]
+pub struct DeleteWebhookRequest {
 }
 /// Use this method to get current webhook status. Requires no parameters. On success, returns a <a href="https://core.telegram.org/bots/api#webhookinfo">WebhookInfo</a> object. If the bot is using <a href="https://core.telegram.org/bots/api#getupdates">getUpdates</a>, will return an object with the <em>url</em> field empty.
-#[derive(serde::Serialize)]
-pub struct GetWebhookInfoRequest {}
-impl crate::Method<'_> for GetWebhookInfoRequest {
-    const NAME: &'static str = "getWebhookInfo";
-    type Response = WebhookInfo;
-}
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getWebhookInfo", response(WebhookInfo))]
+pub struct GetWebhookInfoRequest;
 /// Describes the current status of a webhook.
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct WebhookInfo {}
@@ -752,893 +743,634 @@ pub struct InputStoryContentPhoto {}
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct InputStoryContentVideo {}
 /// A simple method for testing your bot's authentication token. Requires no parameters. Returns basic information about the bot in form of a <a href="https://core.telegram.org/bots/api#user">User</a> object.
-#[derive(serde::Serialize)]
-pub struct GetMeRequest {}
-impl crate::Method<'_> for GetMeRequest {
-    const NAME: &'static str = "getMe";
-    type Response = User;
-}
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getMe", response(User))]
+pub struct GetMeRequest;
 /// Use this method to log out from the cloud Bot API server before launching the bot locally. You <strong>must</strong> log out the bot before running it locally, otherwise there is no guarantee that the bot will receive updates. After a successful call, you can immediately log in on a local server, but will not be able to log in back to the cloud Bot API server for 10 minutes. Returns <em>True</em> on success. Requires no parameters.
-#[derive(serde::Serialize)]
-pub struct LogOutRequest {}
-impl crate::Method<'_> for LogOutRequest {
-    const NAME: &'static str = "logOut";
-    type Response = crate::True;
-}
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "logOut", response(crate::True))]
+pub struct LogOutRequest;
 /// Use this method to close the bot instance before moving it from one local server to another. You need to delete the webhook before calling this method to ensure that the bot isn't launched again after server restart. The method will return error 429 in the first 10 minutes after the bot is launched. Returns <em>True</em> on success. Requires no parameters.
-#[derive(serde::Serialize)]
-pub struct CloseRequest {}
-impl crate::Method<'_> for CloseRequest {
-    const NAME: &'static str = "close";
-    type Response = crate::True;
-}
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "close", response(crate::True))]
+pub struct CloseRequest;
 /// Use this method to send text messages. On success, the sent <a href="https://core.telegram.org/bots/api#message">Message</a> is returned.
-#[derive(serde::Serialize)]
-pub struct SendMessageRequest {}
-impl crate::Method<'_> for SendMessageRequest {
-    const NAME: &'static str = "sendMessage";
-    type Response = Message;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "sendMessage", response(Message))]
+pub struct SendMessageRequest {
 }
 /// Use this method to forward messages of any kind. Service messages and messages with protected content can't be forwarded. On success, the sent <a href="https://core.telegram.org/bots/api#message">Message</a> is returned.
-#[derive(serde::Serialize)]
-pub struct ForwardMessageRequest {}
-impl crate::Method<'_> for ForwardMessageRequest {
-    const NAME: &'static str = "forwardMessage";
-    type Response = Message;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "forwardMessage", response(Message))]
+pub struct ForwardMessageRequest {
 }
 /// Use this method to forward multiple messages of any kind. If some of the specified messages can't be found or forwarded, they are skipped. Service messages and messages with protected content can't be forwarded. Album grouping is kept for forwarded messages. On success, an array of <a href="https://core.telegram.org/bots/api#messageid">MessageId</a> of the sent messages is returned.
-#[derive(serde::Serialize)]
-pub struct ForwardMessagesRequest {}
-impl crate::Method<'_> for ForwardMessagesRequest {
-    const NAME: &'static str = "forwardMessages";
-    type Response = MessageId;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "forwardMessages", response(MessageId))]
+pub struct ForwardMessagesRequest {
 }
 /// Use this method to copy messages of any kind. Service messages, paid media messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz <a href="https://core.telegram.org/bots/api#poll">poll</a> can be copied only if the value of the field <em>correct_option_id</em> is known to the bot. The method is analogous to the method <a href="https://core.telegram.org/bots/api#forwardmessage">forwardMessage</a>, but the copied message doesn't have a link to the original message. Returns the <a href="https://core.telegram.org/bots/api#messageid">MessageId</a> of the sent message on success.
-#[derive(serde::Serialize)]
-pub struct CopyMessageRequest {}
-impl crate::Method<'_> for CopyMessageRequest {
-    const NAME: &'static str = "copyMessage";
-    type Response = MessageId;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "copyMessage", response(MessageId))]
+pub struct CopyMessageRequest {
 }
 /// Use this method to copy messages of any kind. If some of the specified messages can't be found or copied, they are skipped. Service messages, paid media messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz <a href="https://core.telegram.org/bots/api#poll">poll</a> can be copied only if the value of the field <em>correct_option_id</em> is known to the bot. The method is analogous to the method <a href="https://core.telegram.org/bots/api#forwardmessages">forwardMessages</a>, but the copied messages don't have a link to the original message. Album grouping is kept for copied messages. On success, an array of <a href="https://core.telegram.org/bots/api#messageid">MessageId</a> of the sent messages is returned.
-#[derive(serde::Serialize)]
-pub struct CopyMessagesRequest {}
-impl crate::Method<'_> for CopyMessagesRequest {
-    const NAME: &'static str = "copyMessages";
-    type Response = MessageId;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "copyMessages", response(MessageId))]
+pub struct CopyMessagesRequest {
 }
 /// Use this method to send photos. On success, the sent <a href="https://core.telegram.org/bots/api#message">Message</a> is returned.
-#[derive(serde::Serialize)]
-pub struct SendPhotoRequest {}
-impl crate::Method<'_> for SendPhotoRequest {
-    const NAME: &'static str = "sendPhoto";
-    type Response = Message;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "sendPhoto", response(Message))]
+pub struct SendPhotoRequest {
 }
 /// Use this method to send audio files, if you want Telegram clients to display them in the music player. Your audio must be in the .MP3 or .M4A format. On success, the sent <a href="https://core.telegram.org/bots/api#message">Message</a> is returned. Bots can currently send audio files of up to 50 MB in size, this limit may be changed in the future.
-#[derive(serde::Serialize)]
-pub struct SendAudioRequest {}
-impl crate::Method<'_> for SendAudioRequest {
-    const NAME: &'static str = "sendAudio";
-    type Response = Message;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "sendAudio", response(Message))]
+pub struct SendAudioRequest {
 }
 /// Use this method to send general files. On success, the sent <a href="https://core.telegram.org/bots/api#message">Message</a> is returned. Bots can currently send files of any type of up to 50 MB in size, this limit may be changed in the future.
-#[derive(serde::Serialize)]
-pub struct SendDocumentRequest {}
-impl crate::Method<'_> for SendDocumentRequest {
-    const NAME: &'static str = "sendDocument";
-    type Response = Message;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "sendDocument", response(Message))]
+pub struct SendDocumentRequest {
 }
 /// Use this method to send video files, Telegram clients support MPEG4 videos (other formats may be sent as <a href="https://core.telegram.org/bots/api#document">Document</a>). On success, the sent <a href="https://core.telegram.org/bots/api#message">Message</a> is returned. Bots can currently send video files of up to 50 MB in size, this limit may be changed in the future.
-#[derive(serde::Serialize)]
-pub struct SendVideoRequest {}
-impl crate::Method<'_> for SendVideoRequest {
-    const NAME: &'static str = "sendVideo";
-    type Response = Message;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "sendVideo", response(Message))]
+pub struct SendVideoRequest {
 }
 /// Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without sound). On success, the sent <a href="https://core.telegram.org/bots/api#message">Message</a> is returned. Bots can currently send animation files of up to 50 MB in size, this limit may be changed in the future.
-#[derive(serde::Serialize)]
-pub struct SendAnimationRequest {}
-impl crate::Method<'_> for SendAnimationRequest {
-    const NAME: &'static str = "sendAnimation";
-    type Response = Message;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "sendAnimation", response(Message))]
+pub struct SendAnimationRequest {
 }
 /// Use this method to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .OGG file encoded with OPUS, or in .MP3 format, or in .M4A format (other formats may be sent as <a href="https://core.telegram.org/bots/api#audio">Audio</a> or <a href="https://core.telegram.org/bots/api#document">Document</a>). On success, the sent <a href="https://core.telegram.org/bots/api#message">Message</a> is returned. Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future.
-#[derive(serde::Serialize)]
-pub struct SendVoiceRequest {}
-impl crate::Method<'_> for SendVoiceRequest {
-    const NAME: &'static str = "sendVoice";
-    type Response = Message;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "sendVoice", response(Message))]
+pub struct SendVoiceRequest {
 }
 /// As of <a href="https://telegram.org/blog/video-messages-and-telescope">v.4.0</a>, Telegram clients support rounded square MPEG4 videos of up to 1 minute long. Use this method to send video messages. On success, the sent <a href="https://core.telegram.org/bots/api#message">Message</a> is returned.
-#[derive(serde::Serialize)]
-pub struct SendVideoNoteRequest {}
-impl crate::Method<'_> for SendVideoNoteRequest {
-    const NAME: &'static str = "sendVideoNote";
-    type Response = Message;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "sendVideoNote", response(Message))]
+pub struct SendVideoNoteRequest {
 }
 /// Use this method to send paid media. On success, the sent <a href="https://core.telegram.org/bots/api#message">Message</a> is returned.
-#[derive(serde::Serialize)]
-pub struct SendPaidMediaRequest {}
-impl crate::Method<'_> for SendPaidMediaRequest {
-    const NAME: &'static str = "sendPaidMedia";
-    type Response = Message;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "sendPaidMedia", response(Message))]
+pub struct SendPaidMediaRequest {
 }
 /// Use this method to send a group of photos, videos, documents or audios as an album. Documents and audio files can be only grouped in an album with messages of the same type. On success, an array of <a href="https://core.telegram.org/bots/api#message">Message</a> objects that were sent is returned.
-#[derive(serde::Serialize)]
-pub struct SendMediaGroupRequest {}
-impl crate::Method<'_> for SendMediaGroupRequest {
-    const NAME: &'static str = "sendMediaGroup";
-    type Response = Message;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "sendMediaGroup", response(Message))]
+pub struct SendMediaGroupRequest {
 }
 /// Use this method to send point on the map. On success, the sent <a href="https://core.telegram.org/bots/api#message">Message</a> is returned.
-#[derive(serde::Serialize)]
-pub struct SendLocationRequest {}
-impl crate::Method<'_> for SendLocationRequest {
-    const NAME: &'static str = "sendLocation";
-    type Response = Message;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "sendLocation", response(Message))]
+pub struct SendLocationRequest {
 }
 /// Use this method to send information about a venue. On success, the sent <a href="https://core.telegram.org/bots/api#message">Message</a> is returned.
-#[derive(serde::Serialize)]
-pub struct SendVenueRequest {}
-impl crate::Method<'_> for SendVenueRequest {
-    const NAME: &'static str = "sendVenue";
-    type Response = Message;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "sendVenue", response(Message))]
+pub struct SendVenueRequest {
 }
 /// Use this method to send phone contacts. On success, the sent <a href="https://core.telegram.org/bots/api#message">Message</a> is returned.
-#[derive(serde::Serialize)]
-pub struct SendContactRequest {}
-impl crate::Method<'_> for SendContactRequest {
-    const NAME: &'static str = "sendContact";
-    type Response = Message;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "sendContact", response(Message))]
+pub struct SendContactRequest {
 }
 /// Use this method to send a native poll. On success, the sent <a href="https://core.telegram.org/bots/api#message">Message</a> is returned.
-#[derive(serde::Serialize)]
-pub struct SendPollRequest {}
-impl crate::Method<'_> for SendPollRequest {
-    const NAME: &'static str = "sendPoll";
-    type Response = Message;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "sendPoll", response(Message))]
+pub struct SendPollRequest {
 }
 /// Use this method to send a checklist on behalf of a connected business account. On success, the sent <a href="https://core.telegram.org/bots/api#message">Message</a> is returned.
-#[derive(serde::Serialize)]
-pub struct SendChecklistRequest {}
-impl crate::Method<'_> for SendChecklistRequest {
-    const NAME: &'static str = "sendChecklist";
-    type Response = Message;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "sendChecklist", response(Message))]
+pub struct SendChecklistRequest {
 }
 /// Use this method to send an animated emoji that will display a random value. On success, the sent <a href="https://core.telegram.org/bots/api#message">Message</a> is returned.
-#[derive(serde::Serialize)]
-pub struct SendDiceRequest {}
-impl crate::Method<'_> for SendDiceRequest {
-    const NAME: &'static str = "sendDice";
-    type Response = Message;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "sendDice", response(Message))]
+pub struct SendDiceRequest {
 }
 /// Use this method to stream a partial message to a user while the message is being generated; supported only for bots with forum topic mode enabled. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SendMessageDraftRequest {}
-impl crate::Method<'_> for SendMessageDraftRequest {
-    const NAME: &'static str = "sendMessageDraft";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "sendMessageDraft", response(crate::True))]
+pub struct SendMessageDraftRequest {
 }
 /// Use this method when you need to tell the user that something is happening on the bot's side. The status is set for 5 seconds or less (when a message arrives from your bot, Telegram clients clear its typing status). Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SendChatActionRequest {}
-impl crate::Method<'_> for SendChatActionRequest {
-    const NAME: &'static str = "sendChatAction";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "sendChatAction", response(crate::True))]
+pub struct SendChatActionRequest {
 }
 /// Use this method to change the chosen reactions on a message. Service messages of some types can't be reacted to. Automatically forwarded messages from a channel to its discussion group have the same available reactions as messages in the channel. Bots can't use paid reactions. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetMessageReactionRequest {}
-impl crate::Method<'_> for SetMessageReactionRequest {
-    const NAME: &'static str = "setMessageReaction";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setMessageReaction", response(crate::True))]
+pub struct SetMessageReactionRequest {
 }
 /// Use this method to get a list of profile pictures for a user. Returns a <a href="https://core.telegram.org/bots/api#userprofilephotos">UserProfilePhotos</a> object.
-#[derive(serde::Serialize)]
-pub struct GetUserProfilePhotosRequest {}
-impl crate::Method<'_> for GetUserProfilePhotosRequest {
-    const NAME: &'static str = "getUserProfilePhotos";
-    type Response = UserProfilePhotos;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getUserProfilePhotos", response(UserProfilePhotos))]
+pub struct GetUserProfilePhotosRequest {
 }
 /// Changes the emoji status for a given user that previously allowed the bot to manage their emoji status via the Mini App method <a href="/bots/webapps#initializing-mini-apps">requestEmojiStatusAccess</a>. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetUserEmojiStatusRequest {}
-impl crate::Method<'_> for SetUserEmojiStatusRequest {
-    const NAME: &'static str = "setUserEmojiStatus";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setUserEmojiStatus", response(crate::True))]
+pub struct SetUserEmojiStatusRequest {
 }
 /// Use this method to get basic information about a file and prepare it for downloading. For the moment, bots can download files of up to 20MB in size. On success, a <a href="https://core.telegram.org/bots/api#file">File</a> object is returned. The file can then be downloaded via the link <code>https://api.telegram.org/file/bot<token>/<file_path></code>, where <code><file_path></code> is taken from the response. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling <a href="https://core.telegram.org/bots/api#getfile">getFile</a> again.
-#[derive(serde::Serialize)]
-pub struct GetFileRequest {}
-impl crate::Method<'_> for GetFileRequest {
-    const NAME: &'static str = "getFile";
-    type Response = File;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getFile", response(File))]
+pub struct GetFileRequest {
 }
 /// Use this method to ban a user in a group, a supergroup or a channel. In the case of supergroups and channels, the user will not be able to return to the chat on their own using invite links, etc., unless <a href="https://core.telegram.org/bots/api#unbanchatmember">unbanned</a> first. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct BanChatMemberRequest {}
-impl crate::Method<'_> for BanChatMemberRequest {
-    const NAME: &'static str = "banChatMember";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "banChatMember", response(crate::True))]
+pub struct BanChatMemberRequest {
 }
 /// Use this method to unban a previously banned user in a supergroup or channel. The user will <strong>not</strong> return to the group or channel automatically, but will be able to join via link, etc. The bot must be an administrator for this to work. By default, this method guarantees that after the call the user is not a member of the chat, but will be able to join it. So if the user is a member of the chat they will also be <strong>removed</strong> from the chat. If you don't want this, use the parameter <em>only_if_banned</em>. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct UnbanChatMemberRequest {}
-impl crate::Method<'_> for UnbanChatMemberRequest {
-    const NAME: &'static str = "unbanChatMember";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "unbanChatMember", response(crate::True))]
+pub struct UnbanChatMemberRequest {
 }
 /// Use this method to restrict a user in a supergroup. The bot must be an administrator in the supergroup for this to work and must have the appropriate administrator rights. Pass <em>True</em> for all permissions to lift restrictions from a user. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct RestrictChatMemberRequest {}
-impl crate::Method<'_> for RestrictChatMemberRequest {
-    const NAME: &'static str = "restrictChatMember";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "restrictChatMember", response(crate::True))]
+pub struct RestrictChatMemberRequest {
 }
 /// Use this method to promote or demote a user in a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Pass <em>False</em> for all boolean parameters to demote a user. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct PromoteChatMemberRequest {}
-impl crate::Method<'_> for PromoteChatMemberRequest {
-    const NAME: &'static str = "promoteChatMember";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "promoteChatMember", response(crate::True))]
+pub struct PromoteChatMemberRequest {
 }
 /// Use this method to set a custom title for an administrator in a supergroup promoted by the bot. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetChatAdministratorCustomTitleRequest {}
-impl crate::Method<'_> for SetChatAdministratorCustomTitleRequest {
-    const NAME: &'static str = "setChatAdministratorCustomTitle";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setChatAdministratorCustomTitle", response(crate::True))]
+pub struct SetChatAdministratorCustomTitleRequest {
 }
 /// Use this method to ban a channel chat in a supergroup or a channel. Until the chat is <a href="https://core.telegram.org/bots/api#unbanchatsenderchat">unbanned</a>, the owner of the banned chat won't be able to send messages on behalf of <strong>any of their channels</strong>. The bot must be an administrator in the supergroup or channel for this to work and must have the appropriate administrator rights. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct BanChatSenderChatRequest {}
-impl crate::Method<'_> for BanChatSenderChatRequest {
-    const NAME: &'static str = "banChatSenderChat";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "banChatSenderChat", response(crate::True))]
+pub struct BanChatSenderChatRequest {
 }
 /// Use this method to unban a previously banned channel chat in a supergroup or channel. The bot must be an administrator for this to work and must have the appropriate administrator rights. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct UnbanChatSenderChatRequest {}
-impl crate::Method<'_> for UnbanChatSenderChatRequest {
-    const NAME: &'static str = "unbanChatSenderChat";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "unbanChatSenderChat", response(crate::True))]
+pub struct UnbanChatSenderChatRequest {
 }
 /// Use this method to set default chat permissions for all members. The bot must be an administrator in the group or a supergroup for this to work and must have the <em>can_restrict_members</em> administrator rights. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetChatPermissionsRequest {}
-impl crate::Method<'_> for SetChatPermissionsRequest {
-    const NAME: &'static str = "setChatPermissions";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setChatPermissions", response(crate::True))]
+pub struct SetChatPermissionsRequest {
 }
 /// Use this method to generate a new primary invite link for a chat; any previously generated primary link is revoked. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the new invite link as <em>String</em> on success.
-#[derive(serde::Serialize)]
-pub struct ExportChatInviteLinkRequest {}
-impl crate::Method<'_> for ExportChatInviteLinkRequest {
-    const NAME: &'static str = "exportChatInviteLink";
-    type Response = String;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "exportChatInviteLink", response(String))]
+pub struct ExportChatInviteLinkRequest {
 }
 /// Use this method to create an additional invite link for a chat. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. The link can be revoked using the method <a href="https://core.telegram.org/bots/api#revokechatinvitelink">revokeChatInviteLink</a>. Returns the new invite link as <a href="https://core.telegram.org/bots/api#chatinvitelink">ChatInviteLink</a> object.
-#[derive(serde::Serialize)]
-pub struct CreateChatInviteLinkRequest {}
-impl crate::Method<'_> for CreateChatInviteLinkRequest {
-    const NAME: &'static str = "createChatInviteLink";
-    type Response = ChatInviteLink;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "createChatInviteLink", response(ChatInviteLink))]
+pub struct CreateChatInviteLinkRequest {
 }
 /// Use this method to edit a non-primary invite link created by the bot. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the edited invite link as a <a href="https://core.telegram.org/bots/api#chatinvitelink">ChatInviteLink</a> object.
-#[derive(serde::Serialize)]
-pub struct EditChatInviteLinkRequest {}
-impl crate::Method<'_> for EditChatInviteLinkRequest {
-    const NAME: &'static str = "editChatInviteLink";
-    type Response = ChatInviteLink;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "editChatInviteLink", response(ChatInviteLink))]
+pub struct EditChatInviteLinkRequest {
 }
 /// Use this method to create a <a href="https://telegram.org/blog/superchannels-star-reactions-subscriptions#star-subscriptions">subscription invite link</a> for a channel chat. The bot must have the <em>can_invite_users</em> administrator rights. The link can be edited using the method <a href="https://core.telegram.org/bots/api#editchatsubscriptioninvitelink">editChatSubscriptionInviteLink</a> or revoked using the method <a href="https://core.telegram.org/bots/api#revokechatinvitelink">revokeChatInviteLink</a>. Returns the new invite link as a <a href="https://core.telegram.org/bots/api#chatinvitelink">ChatInviteLink</a> object.
-#[derive(serde::Serialize)]
-pub struct CreateChatSubscriptionInviteLinkRequest {}
-impl crate::Method<'_> for CreateChatSubscriptionInviteLinkRequest {
-    const NAME: &'static str = "createChatSubscriptionInviteLink";
-    type Response = ChatInviteLink;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "createChatSubscriptionInviteLink", response(ChatInviteLink))]
+pub struct CreateChatSubscriptionInviteLinkRequest {
 }
 /// Use this method to edit a subscription invite link created by the bot. The bot must have the <em>can_invite_users</em> administrator rights. Returns the edited invite link as a <a href="https://core.telegram.org/bots/api#chatinvitelink">ChatInviteLink</a> object.
-#[derive(serde::Serialize)]
-pub struct EditChatSubscriptionInviteLinkRequest {}
-impl crate::Method<'_> for EditChatSubscriptionInviteLinkRequest {
-    const NAME: &'static str = "editChatSubscriptionInviteLink";
-    type Response = ChatInviteLink;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "editChatSubscriptionInviteLink", response(ChatInviteLink))]
+pub struct EditChatSubscriptionInviteLinkRequest {
 }
 /// Use this method to revoke an invite link created by the bot. If the primary link is revoked, a new link is automatically generated. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the revoked invite link as <a href="https://core.telegram.org/bots/api#chatinvitelink">ChatInviteLink</a> object.
-#[derive(serde::Serialize)]
-pub struct RevokeChatInviteLinkRequest {}
-impl crate::Method<'_> for RevokeChatInviteLinkRequest {
-    const NAME: &'static str = "revokeChatInviteLink";
-    type Response = ChatInviteLink;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "revokeChatInviteLink", response(ChatInviteLink))]
+pub struct RevokeChatInviteLinkRequest {
 }
 /// Use this method to approve a chat join request. The bot must be an administrator in the chat for this to work and must have the <em>can_invite_users</em> administrator right. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct ApproveChatJoinRequestRequest {}
-impl crate::Method<'_> for ApproveChatJoinRequestRequest {
-    const NAME: &'static str = "approveChatJoinRequest";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "approveChatJoinRequest", response(crate::True))]
+pub struct ApproveChatJoinRequestRequest {
 }
 /// Use this method to decline a chat join request. The bot must be an administrator in the chat for this to work and must have the <em>can_invite_users</em> administrator right. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct DeclineChatJoinRequestRequest {}
-impl crate::Method<'_> for DeclineChatJoinRequestRequest {
-    const NAME: &'static str = "declineChatJoinRequest";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "declineChatJoinRequest", response(crate::True))]
+pub struct DeclineChatJoinRequestRequest {
 }
 /// Use this method to set a new profile photo for the chat. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetChatPhotoRequest {}
-impl crate::Method<'_> for SetChatPhotoRequest {
-    const NAME: &'static str = "setChatPhoto";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setChatPhoto", response(crate::True))]
+pub struct SetChatPhotoRequest {
 }
 /// Use this method to delete a chat photo. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct DeleteChatPhotoRequest {}
-impl crate::Method<'_> for DeleteChatPhotoRequest {
-    const NAME: &'static str = "deleteChatPhoto";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "deleteChatPhoto", response(crate::True))]
+pub struct DeleteChatPhotoRequest {
 }
 /// Use this method to change the title of a chat. Titles can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetChatTitleRequest {}
-impl crate::Method<'_> for SetChatTitleRequest {
-    const NAME: &'static str = "setChatTitle";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setChatTitle", response(crate::True))]
+pub struct SetChatTitleRequest {
 }
 /// Use this method to change the description of a group, a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetChatDescriptionRequest {}
-impl crate::Method<'_> for SetChatDescriptionRequest {
-    const NAME: &'static str = "setChatDescription";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setChatDescription", response(crate::True))]
+pub struct SetChatDescriptionRequest {
 }
 /// Use this method to add a message to the list of pinned messages in a chat. In private chats and channel direct messages chats, all non-service messages can be pinned. Conversely, the bot must be an administrator with the 'can_pin_messages' right or the 'can_edit_messages' right to pin messages in groups and channels respectively. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct PinChatMessageRequest {}
-impl crate::Method<'_> for PinChatMessageRequest {
-    const NAME: &'static str = "pinChatMessage";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "pinChatMessage", response(crate::True))]
+pub struct PinChatMessageRequest {
 }
 /// Use this method to remove a message from the list of pinned messages in a chat. In private chats and channel direct messages chats, all messages can be unpinned. Conversely, the bot must be an administrator with the 'can_pin_messages' right or the 'can_edit_messages' right to unpin messages in groups and channels respectively. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct UnpinChatMessageRequest {}
-impl crate::Method<'_> for UnpinChatMessageRequest {
-    const NAME: &'static str = "unpinChatMessage";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "unpinChatMessage", response(crate::True))]
+pub struct UnpinChatMessageRequest {
 }
 /// Use this method to clear the list of pinned messages in a chat. In private chats and channel direct messages chats, no additional rights are required to unpin all pinned messages. Conversely, the bot must be an administrator with the 'can_pin_messages' right or the 'can_edit_messages' right to unpin all pinned messages in groups and channels respectively. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct UnpinAllChatMessagesRequest {}
-impl crate::Method<'_> for UnpinAllChatMessagesRequest {
-    const NAME: &'static str = "unpinAllChatMessages";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "unpinAllChatMessages", response(crate::True))]
+pub struct UnpinAllChatMessagesRequest {
 }
 /// Use this method for your bot to leave a group, supergroup or channel. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct LeaveChatRequest {}
-impl crate::Method<'_> for LeaveChatRequest {
-    const NAME: &'static str = "leaveChat";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "leaveChat", response(crate::True))]
+pub struct LeaveChatRequest {
 }
 /// Use this method to get up-to-date information about the chat. Returns a <a href="https://core.telegram.org/bots/api#chatfullinfo">ChatFullInfo</a> object on success.
-#[derive(serde::Serialize)]
-pub struct GetChatRequest {}
-impl crate::Method<'_> for GetChatRequest {
-    const NAME: &'static str = "getChat";
-    type Response = ChatFullInfo;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getChat", response(ChatFullInfo))]
+pub struct GetChatRequest {
 }
 /// Use this method to get a list of administrators in a chat, which aren't bots. Returns an Array of <a href="https://core.telegram.org/bots/api#chatmember">ChatMember</a> objects.
-#[derive(serde::Serialize)]
-pub struct GetChatAdministratorsRequest {}
-impl crate::Method<'_> for GetChatAdministratorsRequest {
-    const NAME: &'static str = "getChatAdministrators";
-    type Response = Vec<ChatMember>;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getChatAdministrators", response(Vec<ChatMember>))]
+pub struct GetChatAdministratorsRequest {
 }
 /// Use this method to get the number of members in a chat. Returns <em>Int</em> on success.
-#[derive(serde::Serialize)]
-pub struct GetChatMemberCountRequest {}
-impl crate::Method<'_> for GetChatMemberCountRequest {
-    const NAME: &'static str = "getChatMemberCount";
-    type Response = i64;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getChatMemberCount", response(i64))]
+pub struct GetChatMemberCountRequest {
 }
 /// Use this method to get information about a member of a chat. The method is only guaranteed to work for other users if the bot is an administrator in the chat. Returns a <a href="https://core.telegram.org/bots/api#chatmember">ChatMember</a> object on success.
-#[derive(serde::Serialize)]
-pub struct GetChatMemberRequest {}
-impl crate::Method<'_> for GetChatMemberRequest {
-    const NAME: &'static str = "getChatMember";
-    type Response = ChatMember;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getChatMember", response(ChatMember))]
+pub struct GetChatMemberRequest {
 }
 /// Use this method to set a new group sticker set for a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Use the field <em>can_set_sticker_set</em> optionally returned in <a href="https://core.telegram.org/bots/api#getchat">getChat</a> requests to check if the bot can use this method. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetChatStickerSetRequest {}
-impl crate::Method<'_> for SetChatStickerSetRequest {
-    const NAME: &'static str = "setChatStickerSet";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setChatStickerSet", response(crate::True))]
+pub struct SetChatStickerSetRequest {
 }
 /// Use this method to delete a group sticker set from a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Use the field <em>can_set_sticker_set</em> optionally returned in <a href="https://core.telegram.org/bots/api#getchat">getChat</a> requests to check if the bot can use this method. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct DeleteChatStickerSetRequest {}
-impl crate::Method<'_> for DeleteChatStickerSetRequest {
-    const NAME: &'static str = "deleteChatStickerSet";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "deleteChatStickerSet", response(crate::True))]
+pub struct DeleteChatStickerSetRequest {
 }
 /// Use this method to get custom emoji stickers, which can be used as a forum topic icon by any user. Requires no parameters. Returns an Array of <a href="https://core.telegram.org/bots/api#sticker">Sticker</a> objects.
-#[derive(serde::Serialize)]
-pub struct GetForumTopicIconStickersRequest {}
-impl crate::Method<'_> for GetForumTopicIconStickersRequest {
-    const NAME: &'static str = "getForumTopicIconStickers";
-    type Response = Vec<Sticker>;
-}
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getForumTopicIconStickers", response(Vec<Sticker>))]
+pub struct GetForumTopicIconStickersRequest;
 /// Use this method to create a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the <em>can_manage_topics</em> administrator rights. Returns information about the created topic as a <a href="https://core.telegram.org/bots/api#forumtopic">ForumTopic</a> object.
-#[derive(serde::Serialize)]
-pub struct CreateForumTopicRequest {}
-impl crate::Method<'_> for CreateForumTopicRequest {
-    const NAME: &'static str = "createForumTopic";
-    type Response = ForumTopic;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "createForumTopic", response(ForumTopic))]
+pub struct CreateForumTopicRequest {
 }
 /// Use this method to edit name and icon of a topic in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the <em>can_manage_topics</em> administrator rights, unless it is the creator of the topic. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct EditForumTopicRequest {}
-impl crate::Method<'_> for EditForumTopicRequest {
-    const NAME: &'static str = "editForumTopic";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "editForumTopic", response(crate::True))]
+pub struct EditForumTopicRequest {
 }
 /// Use this method to close an open topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the <em>can_manage_topics</em> administrator rights, unless it is the creator of the topic. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct CloseForumTopicRequest {}
-impl crate::Method<'_> for CloseForumTopicRequest {
-    const NAME: &'static str = "closeForumTopic";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "closeForumTopic", response(crate::True))]
+pub struct CloseForumTopicRequest {
 }
 /// Use this method to reopen a closed topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the <em>can_manage_topics</em> administrator rights, unless it is the creator of the topic. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct ReopenForumTopicRequest {}
-impl crate::Method<'_> for ReopenForumTopicRequest {
-    const NAME: &'static str = "reopenForumTopic";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "reopenForumTopic", response(crate::True))]
+pub struct ReopenForumTopicRequest {
 }
 /// Use this method to delete a forum topic along with all its messages in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the <em>can_delete_messages</em> administrator rights. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct DeleteForumTopicRequest {}
-impl crate::Method<'_> for DeleteForumTopicRequest {
-    const NAME: &'static str = "deleteForumTopic";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "deleteForumTopic", response(crate::True))]
+pub struct DeleteForumTopicRequest {
 }
 /// Use this method to clear the list of pinned messages in a forum topic in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the <em>can_pin_messages</em> administrator right in the supergroup. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct UnpinAllForumTopicMessagesRequest {}
-impl crate::Method<'_> for UnpinAllForumTopicMessagesRequest {
-    const NAME: &'static str = "unpinAllForumTopicMessages";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "unpinAllForumTopicMessages", response(crate::True))]
+pub struct UnpinAllForumTopicMessagesRequest {
 }
 /// Use this method to edit the name of the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the <em>can_manage_topics</em> administrator rights. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct EditGeneralForumTopicRequest {}
-impl crate::Method<'_> for EditGeneralForumTopicRequest {
-    const NAME: &'static str = "editGeneralForumTopic";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "editGeneralForumTopic", response(crate::True))]
+pub struct EditGeneralForumTopicRequest {
 }
 /// Use this method to close an open 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the <em>can_manage_topics</em> administrator rights. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct CloseGeneralForumTopicRequest {}
-impl crate::Method<'_> for CloseGeneralForumTopicRequest {
-    const NAME: &'static str = "closeGeneralForumTopic";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "closeGeneralForumTopic", response(crate::True))]
+pub struct CloseGeneralForumTopicRequest {
 }
 /// Use this method to reopen a closed 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the <em>can_manage_topics</em> administrator rights. The topic will be automatically unhidden if it was hidden. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct ReopenGeneralForumTopicRequest {}
-impl crate::Method<'_> for ReopenGeneralForumTopicRequest {
-    const NAME: &'static str = "reopenGeneralForumTopic";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "reopenGeneralForumTopic", response(crate::True))]
+pub struct ReopenGeneralForumTopicRequest {
 }
 /// Use this method to hide the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the <em>can_manage_topics</em> administrator rights. The topic will be automatically closed if it was open. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct HideGeneralForumTopicRequest {}
-impl crate::Method<'_> for HideGeneralForumTopicRequest {
-    const NAME: &'static str = "hideGeneralForumTopic";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "hideGeneralForumTopic", response(crate::True))]
+pub struct HideGeneralForumTopicRequest {
 }
 /// Use this method to unhide the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the <em>can_manage_topics</em> administrator rights. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct UnhideGeneralForumTopicRequest {}
-impl crate::Method<'_> for UnhideGeneralForumTopicRequest {
-    const NAME: &'static str = "unhideGeneralForumTopic";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "unhideGeneralForumTopic", response(crate::True))]
+pub struct UnhideGeneralForumTopicRequest {
 }
 /// Use this method to clear the list of pinned messages in a General forum topic. The bot must be an administrator in the chat for this to work and must have the <em>can_pin_messages</em> administrator right in the supergroup. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct UnpinAllGeneralForumTopicMessagesRequest {}
-impl crate::Method<'_> for UnpinAllGeneralForumTopicMessagesRequest {
-    const NAME: &'static str = "unpinAllGeneralForumTopicMessages";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "unpinAllGeneralForumTopicMessages", response(crate::True))]
+pub struct UnpinAllGeneralForumTopicMessagesRequest {
 }
 /// Use this method to send answers to callback queries sent from <a href="/bots/features#inline-keyboards">inline keyboards</a>. The answer will be displayed to the user as a notification at the top of the chat screen or as an alert. On success, <em>True</em> is returned.
-#[derive(serde::Serialize)]
-pub struct AnswerCallbackQueryRequest {}
-impl crate::Method<'_> for AnswerCallbackQueryRequest {
-    const NAME: &'static str = "answerCallbackQuery";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "answerCallbackQuery", response(crate::True))]
+pub struct AnswerCallbackQueryRequest {
 }
 /// Use this method to get the list of boosts added to a chat by a user. Requires administrator rights in the chat. Returns a <a href="https://core.telegram.org/bots/api#userchatboosts">UserChatBoosts</a> object.
-#[derive(serde::Serialize)]
-pub struct GetUserChatBoostsRequest {}
-impl crate::Method<'_> for GetUserChatBoostsRequest {
-    const NAME: &'static str = "getUserChatBoosts";
-    type Response = UserChatBoosts;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getUserChatBoosts", response(UserChatBoosts))]
+pub struct GetUserChatBoostsRequest {
 }
 /// Use this method to get information about the connection of the bot with a business account. Returns a <a href="https://core.telegram.org/bots/api#businessconnection">BusinessConnection</a> object on success.
-#[derive(serde::Serialize)]
-pub struct GetBusinessConnectionRequest {}
-impl crate::Method<'_> for GetBusinessConnectionRequest {
-    const NAME: &'static str = "getBusinessConnection";
-    type Response = BusinessConnection;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getBusinessConnection", response(BusinessConnection))]
+pub struct GetBusinessConnectionRequest {
 }
 /// Use this method to change the list of the bot's commands. See <a href="/bots/features#commands">this manual</a> for more details about bot commands. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetMyCommandsRequest {}
-impl crate::Method<'_> for SetMyCommandsRequest {
-    const NAME: &'static str = "setMyCommands";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setMyCommands", response(crate::True))]
+pub struct SetMyCommandsRequest {
 }
 /// Use this method to delete the list of the bot's commands for the given scope and user language. After deletion, <a href="https://core.telegram.org/bots/api#determining-list-of-commands">higher level commands</a> will be shown to affected users. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct DeleteMyCommandsRequest {}
-impl crate::Method<'_> for DeleteMyCommandsRequest {
-    const NAME: &'static str = "deleteMyCommands";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "deleteMyCommands", response(crate::True))]
+pub struct DeleteMyCommandsRequest {
 }
 /// Use this method to get the current list of the bot's commands for the given scope and user language. Returns an Array of <a href="https://core.telegram.org/bots/api#botcommand">BotCommand</a> objects. If commands aren't set, an empty list is returned.
-#[derive(serde::Serialize)]
-pub struct GetMyCommandsRequest {}
-impl crate::Method<'_> for GetMyCommandsRequest {
-    const NAME: &'static str = "getMyCommands";
-    type Response = Vec<BotCommand>;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getMyCommands", response(Vec<BotCommand>))]
+pub struct GetMyCommandsRequest {
 }
 /// Use this method to change the bot's name. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetMyNameRequest {}
-impl crate::Method<'_> for SetMyNameRequest {
-    const NAME: &'static str = "setMyName";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setMyName", response(crate::True))]
+pub struct SetMyNameRequest {
 }
 /// Use this method to get the current bot name for the given user language. Returns <a href="https://core.telegram.org/bots/api#botname">BotName</a> on success.
-#[derive(serde::Serialize)]
-pub struct GetMyNameRequest {}
-impl crate::Method<'_> for GetMyNameRequest {
-    const NAME: &'static str = "getMyName";
-    type Response = BotName;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getMyName", response(BotName))]
+pub struct GetMyNameRequest {
 }
 /// Use this method to change the bot's description, which is shown in the chat with the bot if the chat is empty. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetMyDescriptionRequest {}
-impl crate::Method<'_> for SetMyDescriptionRequest {
-    const NAME: &'static str = "setMyDescription";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setMyDescription", response(crate::True))]
+pub struct SetMyDescriptionRequest {
 }
 /// Use this method to get the current bot description for the given user language. Returns <a href="https://core.telegram.org/bots/api#botdescription">BotDescription</a> on success.
-#[derive(serde::Serialize)]
-pub struct GetMyDescriptionRequest {}
-impl crate::Method<'_> for GetMyDescriptionRequest {
-    const NAME: &'static str = "getMyDescription";
-    type Response = BotDescription;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getMyDescription", response(BotDescription))]
+pub struct GetMyDescriptionRequest {
 }
 /// Use this method to change the bot's short description, which is shown on the bot's profile page and is sent together with the link when users share the bot. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetMyShortDescriptionRequest {}
-impl crate::Method<'_> for SetMyShortDescriptionRequest {
-    const NAME: &'static str = "setMyShortDescription";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setMyShortDescription", response(crate::True))]
+pub struct SetMyShortDescriptionRequest {
 }
 /// Use this method to get the current bot short description for the given user language. Returns <a href="https://core.telegram.org/bots/api#botshortdescription">BotShortDescription</a> on success.
-#[derive(serde::Serialize)]
-pub struct GetMyShortDescriptionRequest {}
-impl crate::Method<'_> for GetMyShortDescriptionRequest {
-    const NAME: &'static str = "getMyShortDescription";
-    type Response = BotShortDescription;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getMyShortDescription", response(BotShortDescription))]
+pub struct GetMyShortDescriptionRequest {
 }
 /// Use this method to change the bot's menu button in a private chat, or the default menu button. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetChatMenuButtonRequest {}
-impl crate::Method<'_> for SetChatMenuButtonRequest {
-    const NAME: &'static str = "setChatMenuButton";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setChatMenuButton", response(crate::True))]
+pub struct SetChatMenuButtonRequest {
 }
 /// Use this method to get the current value of the bot's menu button in a private chat, or the default menu button. Returns <a href="https://core.telegram.org/bots/api#menubutton">MenuButton</a> on success.
-#[derive(serde::Serialize)]
-pub struct GetChatMenuButtonRequest {}
-impl crate::Method<'_> for GetChatMenuButtonRequest {
-    const NAME: &'static str = "getChatMenuButton";
-    type Response = MenuButton;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getChatMenuButton", response(MenuButton))]
+pub struct GetChatMenuButtonRequest {
 }
 /// Use this method to change the default administrator rights requested by the bot when it's added as an administrator to groups or channels. These rights will be suggested to users, but they are free to modify the list before adding the bot. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetMyDefaultAdministratorRightsRequest {}
-impl crate::Method<'_> for SetMyDefaultAdministratorRightsRequest {
-    const NAME: &'static str = "setMyDefaultAdministratorRights";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setMyDefaultAdministratorRights", response(crate::True))]
+pub struct SetMyDefaultAdministratorRightsRequest {
 }
 /// Use this method to get the current default administrator rights of the bot. Returns <a href="https://core.telegram.org/bots/api#chatadministratorrights">ChatAdministratorRights</a> on success.
-#[derive(serde::Serialize)]
-pub struct GetMyDefaultAdministratorRightsRequest {}
-impl crate::Method<'_> for GetMyDefaultAdministratorRightsRequest {
-    const NAME: &'static str = "getMyDefaultAdministratorRights";
-    type Response = ChatAdministratorRights;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getMyDefaultAdministratorRights", response(ChatAdministratorRights))]
+pub struct GetMyDefaultAdministratorRightsRequest {
 }
 /// Returns the list of gifts that can be sent by the bot to users and channel chats. Requires no parameters. Returns a <a href="https://core.telegram.org/bots/api#gifts">Gifts</a> object.
-#[derive(serde::Serialize)]
-pub struct GetAvailableGiftsRequest {}
-impl crate::Method<'_> for GetAvailableGiftsRequest {
-    const NAME: &'static str = "getAvailableGifts";
-    type Response = Gifts;
-}
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getAvailableGifts", response(Gifts))]
+pub struct GetAvailableGiftsRequest;
 /// Sends a gift to the given user or channel chat. The gift can't be converted to Telegram Stars by the receiver. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SendGiftRequest {}
-impl crate::Method<'_> for SendGiftRequest {
-    const NAME: &'static str = "sendGift";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "sendGift", response(crate::True))]
+pub struct SendGiftRequest {
 }
 /// Gifts a Telegram Premium subscription to the given user. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct GiftPremiumSubscriptionRequest {}
-impl crate::Method<'_> for GiftPremiumSubscriptionRequest {
-    const NAME: &'static str = "giftPremiumSubscription";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "giftPremiumSubscription", response(crate::True))]
+pub struct GiftPremiumSubscriptionRequest {
 }
 /// Verifies a user <a href="https://telegram.org/verify#third-party-verification">on behalf of the organization</a> which is represented by the bot. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct VerifyUserRequest {}
-impl crate::Method<'_> for VerifyUserRequest {
-    const NAME: &'static str = "verifyUser";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "verifyUser", response(crate::True))]
+pub struct VerifyUserRequest {
 }
 /// Verifies a chat <a href="https://telegram.org/verify#third-party-verification">on behalf of the organization</a> which is represented by the bot. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct VerifyChatRequest {}
-impl crate::Method<'_> for VerifyChatRequest {
-    const NAME: &'static str = "verifyChat";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "verifyChat", response(crate::True))]
+pub struct VerifyChatRequest {
 }
 /// Removes verification from a user who is currently verified <a href="https://telegram.org/verify#third-party-verification">on behalf of the organization</a> represented by the bot. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct RemoveUserVerificationRequest {}
-impl crate::Method<'_> for RemoveUserVerificationRequest {
-    const NAME: &'static str = "removeUserVerification";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "removeUserVerification", response(crate::True))]
+pub struct RemoveUserVerificationRequest {
 }
 /// Removes verification from a chat that is currently verified <a href="https://telegram.org/verify#third-party-verification">on behalf of the organization</a> represented by the bot. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct RemoveChatVerificationRequest {}
-impl crate::Method<'_> for RemoveChatVerificationRequest {
-    const NAME: &'static str = "removeChatVerification";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "removeChatVerification", response(crate::True))]
+pub struct RemoveChatVerificationRequest {
 }
 /// Marks incoming message as read on behalf of a business account. Requires the <em>can_read_messages</em> business bot right. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct ReadBusinessMessageRequest {}
-impl crate::Method<'_> for ReadBusinessMessageRequest {
-    const NAME: &'static str = "readBusinessMessage";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "readBusinessMessage", response(crate::True))]
+pub struct ReadBusinessMessageRequest {
 }
 /// Delete messages on behalf of a business account. Requires the <em>can_delete_sent_messages</em> business bot right to delete messages sent by the bot itself, or the <em>can_delete_all_messages</em> business bot right to delete any message. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct DeleteBusinessMessagesRequest {}
-impl crate::Method<'_> for DeleteBusinessMessagesRequest {
-    const NAME: &'static str = "deleteBusinessMessages";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "deleteBusinessMessages", response(crate::True))]
+pub struct DeleteBusinessMessagesRequest {
 }
 /// Changes the first and last name of a managed business account. Requires the <em>can_change_name</em> business bot right. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetBusinessAccountNameRequest {}
-impl crate::Method<'_> for SetBusinessAccountNameRequest {
-    const NAME: &'static str = "setBusinessAccountName";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setBusinessAccountName", response(crate::True))]
+pub struct SetBusinessAccountNameRequest {
 }
 /// Changes the username of a managed business account. Requires the <em>can_change_username</em> business bot right. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetBusinessAccountUsernameRequest {}
-impl crate::Method<'_> for SetBusinessAccountUsernameRequest {
-    const NAME: &'static str = "setBusinessAccountUsername";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setBusinessAccountUsername", response(crate::True))]
+pub struct SetBusinessAccountUsernameRequest {
 }
 /// Changes the bio of a managed business account. Requires the <em>can_change_bio</em> business bot right. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetBusinessAccountBioRequest {}
-impl crate::Method<'_> for SetBusinessAccountBioRequest {
-    const NAME: &'static str = "setBusinessAccountBio";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setBusinessAccountBio", response(crate::True))]
+pub struct SetBusinessAccountBioRequest {
 }
 /// Changes the profile photo of a managed business account. Requires the <em>can_edit_profile_photo</em> business bot right. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetBusinessAccountProfilePhotoRequest {}
-impl crate::Method<'_> for SetBusinessAccountProfilePhotoRequest {
-    const NAME: &'static str = "setBusinessAccountProfilePhoto";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setBusinessAccountProfilePhoto", response(crate::True))]
+pub struct SetBusinessAccountProfilePhotoRequest {
 }
 /// Removes the current profile photo of a managed business account. Requires the <em>can_edit_profile_photo</em> business bot right. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct RemoveBusinessAccountProfilePhotoRequest {}
-impl crate::Method<'_> for RemoveBusinessAccountProfilePhotoRequest {
-    const NAME: &'static str = "removeBusinessAccountProfilePhoto";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "removeBusinessAccountProfilePhoto", response(crate::True))]
+pub struct RemoveBusinessAccountProfilePhotoRequest {
 }
 /// Changes the privacy settings pertaining to incoming gifts in a managed business account. Requires the <em>can_change_gift_settings</em> business bot right. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetBusinessAccountGiftSettingsRequest {}
-impl crate::Method<'_> for SetBusinessAccountGiftSettingsRequest {
-    const NAME: &'static str = "setBusinessAccountGiftSettings";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setBusinessAccountGiftSettings", response(crate::True))]
+pub struct SetBusinessAccountGiftSettingsRequest {
 }
 /// Returns the amount of Telegram Stars owned by a managed business account. Requires the <em>can_view_gifts_and_stars</em> business bot right. Returns <a href="https://core.telegram.org/bots/api#staramount">StarAmount</a> on success.
-#[derive(serde::Serialize)]
-pub struct GetBusinessAccountStarBalanceRequest {}
-impl crate::Method<'_> for GetBusinessAccountStarBalanceRequest {
-    const NAME: &'static str = "getBusinessAccountStarBalance";
-    type Response = StarAmount;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getBusinessAccountStarBalance", response(StarAmount))]
+pub struct GetBusinessAccountStarBalanceRequest {
 }
 /// Transfers Telegram Stars from the business account balance to the bot's balance. Requires the <em>can_transfer_stars</em> business bot right. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct TransferBusinessAccountStarsRequest {}
-impl crate::Method<'_> for TransferBusinessAccountStarsRequest {
-    const NAME: &'static str = "transferBusinessAccountStars";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "transferBusinessAccountStars", response(crate::True))]
+pub struct TransferBusinessAccountStarsRequest {
 }
 /// Returns the gifts received and owned by a managed business account. Requires the <em>can_view_gifts_and_stars</em> business bot right. Returns <a href="https://core.telegram.org/bots/api#ownedgifts">OwnedGifts</a> on success.
-#[derive(serde::Serialize)]
-pub struct GetBusinessAccountGiftsRequest {}
-impl crate::Method<'_> for GetBusinessAccountGiftsRequest {
-    const NAME: &'static str = "getBusinessAccountGifts";
-    type Response = OwnedGifts;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getBusinessAccountGifts", response(OwnedGifts))]
+pub struct GetBusinessAccountGiftsRequest {
 }
 /// Returns the gifts owned and hosted by a user. Returns <a href="https://core.telegram.org/bots/api#ownedgifts">OwnedGifts</a> on success.
-#[derive(serde::Serialize)]
-pub struct GetUserGiftsRequest {}
-impl crate::Method<'_> for GetUserGiftsRequest {
-    const NAME: &'static str = "getUserGifts";
-    type Response = OwnedGifts;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getUserGifts", response(OwnedGifts))]
+pub struct GetUserGiftsRequest {
 }
 /// Returns the gifts owned by a chat. Returns <a href="https://core.telegram.org/bots/api#ownedgifts">OwnedGifts</a> on success.
-#[derive(serde::Serialize)]
-pub struct GetChatGiftsRequest {}
-impl crate::Method<'_> for GetChatGiftsRequest {
-    const NAME: &'static str = "getChatGifts";
-    type Response = OwnedGifts;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getChatGifts", response(OwnedGifts))]
+pub struct GetChatGiftsRequest {
 }
 /// Converts a given regular gift to Telegram Stars. Requires the <em>can_convert_gifts_to_stars</em> business bot right. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct ConvertGiftToStarsRequest {}
-impl crate::Method<'_> for ConvertGiftToStarsRequest {
-    const NAME: &'static str = "convertGiftToStars";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "convertGiftToStars", response(crate::True))]
+pub struct ConvertGiftToStarsRequest {
 }
 /// Upgrades a given regular gift to a unique gift. Requires the <em>can_transfer_and_upgrade_gifts</em> business bot right. Additionally requires the <em>can_transfer_stars</em> business bot right if the upgrade is paid. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct UpgradeGiftRequest {}
-impl crate::Method<'_> for UpgradeGiftRequest {
-    const NAME: &'static str = "upgradeGift";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "upgradeGift", response(crate::True))]
+pub struct UpgradeGiftRequest {
 }
 /// Transfers an owned unique gift to another user. Requires the <em>can_transfer_and_upgrade_gifts</em> business bot right. Requires <em>can_transfer_stars</em> business bot right if the transfer is paid. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct TransferGiftRequest {}
-impl crate::Method<'_> for TransferGiftRequest {
-    const NAME: &'static str = "transferGift";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "transferGift", response(crate::True))]
+pub struct TransferGiftRequest {
 }
 /// Posts a story on behalf of a managed business account. Requires the <em>can_manage_stories</em> business bot right. Returns <a href="https://core.telegram.org/bots/api#story">Story</a> on success.
-#[derive(serde::Serialize)]
-pub struct PostStoryRequest {}
-impl crate::Method<'_> for PostStoryRequest {
-    const NAME: &'static str = "postStory";
-    type Response = Story;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "postStory", response(Story))]
+pub struct PostStoryRequest {
 }
 /// Reposts a story on behalf of a business account from another business account. Both business accounts must be managed by the same bot, and the story on the source account must have been posted (or reposted) by the bot. Requires the <em>can_manage_stories</em> business bot right for both business accounts. Returns <a href="https://core.telegram.org/bots/api#story">Story</a> on success.
-#[derive(serde::Serialize)]
-pub struct RepostStoryRequest {}
-impl crate::Method<'_> for RepostStoryRequest {
-    const NAME: &'static str = "repostStory";
-    type Response = Story;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "repostStory", response(Story))]
+pub struct RepostStoryRequest {
 }
 /// Edits a story previously posted by the bot on behalf of a managed business account. Requires the <em>can_manage_stories</em> business bot right. Returns <a href="https://core.telegram.org/bots/api#story">Story</a> on success.
-#[derive(serde::Serialize)]
-pub struct EditStoryRequest {}
-impl crate::Method<'_> for EditStoryRequest {
-    const NAME: &'static str = "editStory";
-    type Response = Story;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "editStory", response(Story))]
+pub struct EditStoryRequest {
 }
 /// Deletes a story previously posted by the bot on behalf of a managed business account. Requires the <em>can_manage_stories</em> business bot right. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct DeleteStoryRequest {}
-impl crate::Method<'_> for DeleteStoryRequest {
-    const NAME: &'static str = "deleteStory";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "deleteStory", response(crate::True))]
+pub struct DeleteStoryRequest {
 }
 /// Use this method to edit text and <a href="https://core.telegram.org/bots/api#games">game</a> messages. On success, if the edited message is not an inline message, the edited <a href="https://core.telegram.org/bots/api#message">Message</a> is returned, otherwise <em>True</em> is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within <strong>48 hours</strong> from the time they were sent.
-#[derive(serde::Serialize)]
-pub struct EditMessageTextRequest {}
-impl crate::Method<'_> for EditMessageTextRequest {
-    const NAME: &'static str = "editMessageText";
-    type Response = MessageOrTrue;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "editMessageText", response(MessageOrTrue))]
+pub struct EditMessageTextRequest {
 }
 /// Use this method to edit captions of messages. On success, if the edited message is not an inline message, the edited <a href="https://core.telegram.org/bots/api#message">Message</a> is returned, otherwise <em>True</em> is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within <strong>48 hours</strong> from the time they were sent.
-#[derive(serde::Serialize)]
-pub struct EditMessageCaptionRequest {}
-impl crate::Method<'_> for EditMessageCaptionRequest {
-    const NAME: &'static str = "editMessageCaption";
-    type Response = MessageOrTrue;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "editMessageCaption", response(MessageOrTrue))]
+pub struct EditMessageCaptionRequest {
 }
 /// Use this method to edit animation, audio, document, photo, or video messages, or to add media to text messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited <a href="https://core.telegram.org/bots/api#message">Message</a> is returned, otherwise <em>True</em> is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within <strong>48 hours</strong> from the time they were sent.
-#[derive(serde::Serialize)]
-pub struct EditMessageMediaRequest {}
-impl crate::Method<'_> for EditMessageMediaRequest {
-    const NAME: &'static str = "editMessageMedia";
-    type Response = MessageOrTrue;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "editMessageMedia", response(MessageOrTrue))]
+pub struct EditMessageMediaRequest {
 }
 /// Use this method to edit live location messages. A location can be edited until its <em>live_period</em> expires or editing is explicitly disabled by a call to <a href="https://core.telegram.org/bots/api#stopmessagelivelocation">stopMessageLiveLocation</a>. On success, if the edited message is not an inline message, the edited <a href="https://core.telegram.org/bots/api#message">Message</a> is returned, otherwise <em>True</em> is returned.
-#[derive(serde::Serialize)]
-pub struct EditMessageLiveLocationRequest {}
-impl crate::Method<'_> for EditMessageLiveLocationRequest {
-    const NAME: &'static str = "editMessageLiveLocation";
-    type Response = MessageOrTrue;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "editMessageLiveLocation", response(MessageOrTrue))]
+pub struct EditMessageLiveLocationRequest {
 }
 /// Use this method to stop updating a live location message before <em>live_period</em> expires. On success, if the message is not an inline message, the edited <a href="https://core.telegram.org/bots/api#message">Message</a> is returned, otherwise <em>True</em> is returned.
-#[derive(serde::Serialize)]
-pub struct StopMessageLiveLocationRequest {}
-impl crate::Method<'_> for StopMessageLiveLocationRequest {
-    const NAME: &'static str = "stopMessageLiveLocation";
-    type Response = MessageOrTrue;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "stopMessageLiveLocation", response(MessageOrTrue))]
+pub struct StopMessageLiveLocationRequest {
 }
 /// Use this method to edit a checklist on behalf of a connected business account. On success, the edited <a href="https://core.telegram.org/bots/api#message">Message</a> is returned.
-#[derive(serde::Serialize)]
-pub struct EditMessageChecklistRequest {}
-impl crate::Method<'_> for EditMessageChecklistRequest {
-    const NAME: &'static str = "editMessageChecklist";
-    type Response = Message;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "editMessageChecklist", response(Message))]
+pub struct EditMessageChecklistRequest {
 }
 /// Use this method to edit only the reply markup of messages. On success, if the edited message is not an inline message, the edited <a href="https://core.telegram.org/bots/api#message">Message</a> is returned, otherwise <em>True</em> is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within <strong>48 hours</strong> from the time they were sent.
-#[derive(serde::Serialize)]
-pub struct EditMessageReplyMarkupRequest {}
-impl crate::Method<'_> for EditMessageReplyMarkupRequest {
-    const NAME: &'static str = "editMessageReplyMarkup";
-    type Response = MessageOrTrue;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "editMessageReplyMarkup", response(MessageOrTrue))]
+pub struct EditMessageReplyMarkupRequest {
 }
 /// Use this method to stop a poll which was sent by the bot. On success, the stopped <a href="https://core.telegram.org/bots/api#poll">Poll</a> is returned.
-#[derive(serde::Serialize)]
-pub struct StopPollRequest {}
-impl crate::Method<'_> for StopPollRequest {
-    const NAME: &'static str = "stopPoll";
-    type Response = Poll;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "stopPoll", response(Poll))]
+pub struct StopPollRequest {
 }
 /// Use this method to approve a suggested post in a direct messages chat. The bot must have the 'can_post_messages' administrator right in the corresponding channel chat. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct ApproveSuggestedPostRequest {}
-impl crate::Method<'_> for ApproveSuggestedPostRequest {
-    const NAME: &'static str = "approveSuggestedPost";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "approveSuggestedPost", response(crate::True))]
+pub struct ApproveSuggestedPostRequest {
 }
 /// Use this method to decline a suggested post in a direct messages chat. The bot must have the 'can_manage_direct_messages' administrator right in the corresponding channel chat. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct DeclineSuggestedPostRequest {}
-impl crate::Method<'_> for DeclineSuggestedPostRequest {
-    const NAME: &'static str = "declineSuggestedPost";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "declineSuggestedPost", response(crate::True))]
+pub struct DeclineSuggestedPostRequest {
 }
 /// Use this method to delete a message, including service messages, with the following limitations:<br>- A message can only be deleted if it was sent less than 48 hours ago.<br>- Service messages about a supergroup, channel, or forum topic creation can't be deleted.<br>- A dice message in a private chat can only be deleted if it was sent more than 24 hours ago.<br>- Bots can delete outgoing messages in private chats, groups, and supergroups.<br>- Bots can delete incoming messages in private chats.<br>- Bots granted <em>can_post_messages</em> permissions can delete outgoing messages in channels.<br>- If the bot is an administrator of a group, it can delete any message there.<br>- If the bot has <em>can_delete_messages</em> administrator right in a supergroup or a channel, it can delete any message there.<br>- If the bot has <em>can_manage_direct_messages</em> administrator right in a channel, it can delete any message in the corresponding direct messages chat.<br>Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct DeleteMessageRequest {}
-impl crate::Method<'_> for DeleteMessageRequest {
-    const NAME: &'static str = "deleteMessage";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "deleteMessage", response(crate::True))]
+pub struct DeleteMessageRequest {
 }
 /// Use this method to delete multiple messages simultaneously. If some of the specified messages can't be found, they are skipped. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct DeleteMessagesRequest {}
-impl crate::Method<'_> for DeleteMessagesRequest {
-    const NAME: &'static str = "deleteMessages";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "deleteMessages", response(crate::True))]
+pub struct DeleteMessagesRequest {
 }
 /// This object represents a sticker.
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -1653,126 +1385,92 @@ pub struct MaskPosition {}
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct InputSticker {}
 /// Use this method to send static .WEBP, <a href="https://telegram.org/blog/animated-stickers">animated</a> .TGS, or <a href="https://telegram.org/blog/video-stickers-better-reactions">video</a> .WEBM stickers. On success, the sent <a href="https://core.telegram.org/bots/api#message">Message</a> is returned.
-#[derive(serde::Serialize)]
-pub struct SendStickerRequest {}
-impl crate::Method<'_> for SendStickerRequest {
-    const NAME: &'static str = "sendSticker";
-    type Response = Message;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "sendSticker", response(Message))]
+pub struct SendStickerRequest {
 }
 /// Use this method to get a sticker set. On success, a <a href="https://core.telegram.org/bots/api#stickerset">StickerSet</a> object is returned.
-#[derive(serde::Serialize)]
-pub struct GetStickerSetRequest {}
-impl crate::Method<'_> for GetStickerSetRequest {
-    const NAME: &'static str = "getStickerSet";
-    type Response = StickerSet;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getStickerSet", response(StickerSet))]
+pub struct GetStickerSetRequest {
 }
 /// Use this method to get information about custom emoji stickers by their identifiers. Returns an Array of <a href="https://core.telegram.org/bots/api#sticker">Sticker</a> objects.
-#[derive(serde::Serialize)]
-pub struct GetCustomEmojiStickersRequest {}
-impl crate::Method<'_> for GetCustomEmojiStickersRequest {
-    const NAME: &'static str = "getCustomEmojiStickers";
-    type Response = Vec<Sticker>;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getCustomEmojiStickers", response(Vec<Sticker>))]
+pub struct GetCustomEmojiStickersRequest {
 }
 /// Use this method to upload a file with a sticker for later use in the <a href="https://core.telegram.org/bots/api#createnewstickerset">createNewStickerSet</a>, <a href="https://core.telegram.org/bots/api#addstickertoset">addStickerToSet</a>, or <a href="https://core.telegram.org/bots/api#replacestickerinset">replaceStickerInSet</a> methods (the file can be used multiple times). Returns the uploaded <a href="https://core.telegram.org/bots/api#file">File</a> on success.
-#[derive(serde::Serialize)]
-pub struct UploadStickerFileRequest {}
-impl crate::Method<'_> for UploadStickerFileRequest {
-    const NAME: &'static str = "uploadStickerFile";
-    type Response = File;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "uploadStickerFile", response(File))]
+pub struct UploadStickerFileRequest {
 }
 /// Use this method to create a new sticker set owned by a user. The bot will be able to edit the sticker set thus created. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct CreateNewStickerSetRequest {}
-impl crate::Method<'_> for CreateNewStickerSetRequest {
-    const NAME: &'static str = "createNewStickerSet";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "createNewStickerSet", response(crate::True))]
+pub struct CreateNewStickerSetRequest {
 }
 /// Use this method to add a new sticker to a set created by the bot. Emoji sticker sets can have up to 200 stickers. Other sticker sets can have up to 120 stickers. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct AddStickerToSetRequest {}
-impl crate::Method<'_> for AddStickerToSetRequest {
-    const NAME: &'static str = "addStickerToSet";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "addStickerToSet", response(crate::True))]
+pub struct AddStickerToSetRequest {
 }
 /// Use this method to move a sticker in a set created by the bot to a specific position. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetStickerPositionInSetRequest {}
-impl crate::Method<'_> for SetStickerPositionInSetRequest {
-    const NAME: &'static str = "setStickerPositionInSet";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setStickerPositionInSet", response(crate::True))]
+pub struct SetStickerPositionInSetRequest {
 }
 /// Use this method to delete a sticker from a set created by the bot. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct DeleteStickerFromSetRequest {}
-impl crate::Method<'_> for DeleteStickerFromSetRequest {
-    const NAME: &'static str = "deleteStickerFromSet";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "deleteStickerFromSet", response(crate::True))]
+pub struct DeleteStickerFromSetRequest {
 }
 /// Use this method to replace an existing sticker in a sticker set with a new one. The method is equivalent to calling <a href="https://core.telegram.org/bots/api#deletestickerfromset">deleteStickerFromSet</a>, then <a href="https://core.telegram.org/bots/api#addstickertoset">addStickerToSet</a>, then <a href="https://core.telegram.org/bots/api#setstickerpositioninset">setStickerPositionInSet</a>. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct ReplaceStickerInSetRequest {}
-impl crate::Method<'_> for ReplaceStickerInSetRequest {
-    const NAME: &'static str = "replaceStickerInSet";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "replaceStickerInSet", response(crate::True))]
+pub struct ReplaceStickerInSetRequest {
 }
 /// Use this method to change the list of emoji assigned to a regular or custom emoji sticker. The sticker must belong to a sticker set created by the bot. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetStickerEmojiListRequest {}
-impl crate::Method<'_> for SetStickerEmojiListRequest {
-    const NAME: &'static str = "setStickerEmojiList";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setStickerEmojiList", response(crate::True))]
+pub struct SetStickerEmojiListRequest {
 }
 /// Use this method to change search keywords assigned to a regular or custom emoji sticker. The sticker must belong to a sticker set created by the bot. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetStickerKeywordsRequest {}
-impl crate::Method<'_> for SetStickerKeywordsRequest {
-    const NAME: &'static str = "setStickerKeywords";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setStickerKeywords", response(crate::True))]
+pub struct SetStickerKeywordsRequest {
 }
 /// Use this method to change the <a href="https://core.telegram.org/bots/api#maskposition">mask position</a> of a mask sticker. The sticker must belong to a sticker set that was created by the bot. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetStickerMaskPositionRequest {}
-impl crate::Method<'_> for SetStickerMaskPositionRequest {
-    const NAME: &'static str = "setStickerMaskPosition";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setStickerMaskPosition", response(crate::True))]
+pub struct SetStickerMaskPositionRequest {
 }
 /// Use this method to set the title of a created sticker set. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetStickerSetTitleRequest {}
-impl crate::Method<'_> for SetStickerSetTitleRequest {
-    const NAME: &'static str = "setStickerSetTitle";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setStickerSetTitle", response(crate::True))]
+pub struct SetStickerSetTitleRequest {
 }
 /// Use this method to set the thumbnail of a regular or mask sticker set. The format of the thumbnail file must match the format of the stickers in the set. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetStickerSetThumbnailRequest {}
-impl crate::Method<'_> for SetStickerSetThumbnailRequest {
-    const NAME: &'static str = "setStickerSetThumbnail";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setStickerSetThumbnail", response(crate::True))]
+pub struct SetStickerSetThumbnailRequest {
 }
 /// Use this method to set the thumbnail of a custom emoji sticker set. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetCustomEmojiStickerSetThumbnailRequest {}
-impl crate::Method<'_> for SetCustomEmojiStickerSetThumbnailRequest {
-    const NAME: &'static str = "setCustomEmojiStickerSetThumbnail";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setCustomEmojiStickerSetThumbnail", response(crate::True))]
+pub struct SetCustomEmojiStickerSetThumbnailRequest {
 }
 /// Use this method to delete a sticker set that was created by the bot. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct DeleteStickerSetRequest {}
-impl crate::Method<'_> for DeleteStickerSetRequest {
-    const NAME: &'static str = "deleteStickerSet";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "deleteStickerSet", response(crate::True))]
+pub struct DeleteStickerSetRequest {
 }
 /// This object represents an incoming inline query. When the user sends an empty query, your bot could return some default or trending results.
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct InlineQuery {}
 /// Use this method to send answers to an inline query. On success, <em>True</em> is returned.<br>No more than <strong>50</strong> results per query are allowed.
-#[derive(serde::Serialize)]
-pub struct AnswerInlineQueryRequest {}
-impl crate::Method<'_> for AnswerInlineQueryRequest {
-    const NAME: &'static str = "answerInlineQuery";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "answerInlineQuery", response(crate::True))]
+pub struct AnswerInlineQueryRequest {
 }
 /// This object represents a button to be shown above inline query results. You <strong>must</strong> use exactly one of the optional fields.
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -1891,80 +1589,59 @@ pub struct InputInvoiceMessageContent {}
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct ChosenInlineResult {}
 /// Use this method to set the result of an interaction with a <a href="/bots/webapps">Web App</a> and send a corresponding message on behalf of the user to the chat from which the query originated. On success, a <a href="https://core.telegram.org/bots/api#sentwebappmessage">SentWebAppMessage</a> object is returned.
-#[derive(serde::Serialize)]
-pub struct AnswerWebAppQueryRequest {}
-impl crate::Method<'_> for AnswerWebAppQueryRequest {
-    const NAME: &'static str = "answerWebAppQuery";
-    type Response = SentWebAppMessage;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "answerWebAppQuery", response(SentWebAppMessage))]
+pub struct AnswerWebAppQueryRequest {
 }
 /// Describes an inline message sent by a <a href="/bots/webapps">Web App</a> on behalf of a user.
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct SentWebAppMessage {}
 /// Stores a message that can be sent by a user of a Mini App. Returns a <a href="https://core.telegram.org/bots/api#preparedinlinemessage">PreparedInlineMessage</a> object.
-#[derive(serde::Serialize)]
-pub struct SavePreparedInlineMessageRequest {}
-impl crate::Method<'_> for SavePreparedInlineMessageRequest {
-    const NAME: &'static str = "savePreparedInlineMessage";
-    type Response = PreparedInlineMessage;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "savePreparedInlineMessage", response(PreparedInlineMessage))]
+pub struct SavePreparedInlineMessageRequest {
 }
 /// Describes an inline message to be sent by a user of a Mini App.
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct PreparedInlineMessage {}
 /// Use this method to send invoices. On success, the sent <a href="https://core.telegram.org/bots/api#message">Message</a> is returned.
-#[derive(serde::Serialize)]
-pub struct SendInvoiceRequest {}
-impl crate::Method<'_> for SendInvoiceRequest {
-    const NAME: &'static str = "sendInvoice";
-    type Response = Message;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "sendInvoice", response(Message))]
+pub struct SendInvoiceRequest {
 }
 /// Use this method to create a link for an invoice. Returns the created invoice link as <em>String</em> on success.
-#[derive(serde::Serialize)]
-pub struct CreateInvoiceLinkRequest {}
-impl crate::Method<'_> for CreateInvoiceLinkRequest {
-    const NAME: &'static str = "createInvoiceLink";
-    type Response = String;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "createInvoiceLink", response(String))]
+pub struct CreateInvoiceLinkRequest {
 }
 /// If you sent an invoice requesting a shipping address and the parameter <em>is_flexible</em> was specified, the Bot API will send an <a href="https://core.telegram.org/bots/api#update">Update</a> with a <em>shipping_query</em> field to the bot. Use this method to reply to shipping queries. On success, <em>True</em> is returned.
-#[derive(serde::Serialize)]
-pub struct AnswerShippingQueryRequest {}
-impl crate::Method<'_> for AnswerShippingQueryRequest {
-    const NAME: &'static str = "answerShippingQuery";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "answerShippingQuery", response(crate::True))]
+pub struct AnswerShippingQueryRequest {
 }
 /// Once the user has confirmed their payment and shipping details, the Bot API sends the final confirmation in the form of an <a href="https://core.telegram.org/bots/api#update">Update</a> with the field <em>pre_checkout_query</em>. Use this method to respond to such pre-checkout queries. On success, <em>True</em> is returned. <strong>Note:</strong> The Bot API must receive an answer within 10 seconds after the pre-checkout query was sent.
-#[derive(serde::Serialize)]
-pub struct AnswerPreCheckoutQueryRequest {}
-impl crate::Method<'_> for AnswerPreCheckoutQueryRequest {
-    const NAME: &'static str = "answerPreCheckoutQuery";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "answerPreCheckoutQuery", response(crate::True))]
+pub struct AnswerPreCheckoutQueryRequest {
 }
 /// A method to get the current Telegram Stars balance of the bot. Requires no parameters. On success, returns a <a href="https://core.telegram.org/bots/api#staramount">StarAmount</a> object.
-#[derive(serde::Serialize)]
-pub struct GetMyStarBalanceRequest {}
-impl crate::Method<'_> for GetMyStarBalanceRequest {
-    const NAME: &'static str = "getMyStarBalance";
-    type Response = StarAmount;
-}
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getMyStarBalance", response(StarAmount))]
+pub struct GetMyStarBalanceRequest;
 /// Returns the bot's Telegram Star transactions in chronological order. On success, returns a <a href="https://core.telegram.org/bots/api#startransactions">StarTransactions</a> object.
-#[derive(serde::Serialize)]
-pub struct GetStarTransactionsRequest {}
-impl crate::Method<'_> for GetStarTransactionsRequest {
-    const NAME: &'static str = "getStarTransactions";
-    type Response = StarTransactions;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getStarTransactions", response(StarTransactions))]
+pub struct GetStarTransactionsRequest {
 }
 /// Refunds a successful payment in <a href="https://t.me/BotNews/90">Telegram Stars</a>. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct RefundStarPaymentRequest {}
-impl crate::Method<'_> for RefundStarPaymentRequest {
-    const NAME: &'static str = "refundStarPayment";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "refundStarPayment", response(crate::True))]
+pub struct RefundStarPaymentRequest {
 }
 /// Allows the bot to cancel or re-enable extension of a subscription paid in Telegram Stars. Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct EditUserStarSubscriptionRequest {}
-impl crate::Method<'_> for EditUserStarSubscriptionRequest {
-    const NAME: &'static str = "editUserStarSubscription";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "editUserStarSubscription", response(crate::True))]
+pub struct EditUserStarSubscriptionRequest {
 }
 /// This object represents a portion of the price for goods or services.
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -2068,11 +1745,9 @@ pub struct EncryptedPassportElement {}
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct EncryptedCredentials {}
 /// Informs a user that some of the Telegram Passport elements they provided contains errors. The user will not be able to re-submit their Passport to you until the errors are fixed (the contents of the field for which you returned the error must change). Returns <em>True</em> on success.
-#[derive(serde::Serialize)]
-pub struct SetPassportDataErrorsRequest {}
-impl crate::Method<'_> for SetPassportDataErrorsRequest {
-    const NAME: &'static str = "setPassportDataErrors";
-    type Response = crate::True;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setPassportDataErrors", response(crate::True))]
+pub struct SetPassportDataErrorsRequest {
 }
 /// This object represents an error in the Telegram Passport element which was submitted that should be resolved by the user.
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -2116,11 +1791,9 @@ pub struct PassportElementErrorTranslationFiles {}
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct PassportElementErrorUnspecified {}
 /// Use this method to send a game. On success, the sent <a href="https://core.telegram.org/bots/api#message">Message</a> is returned.
-#[derive(serde::Serialize)]
-pub struct SendGameRequest {}
-impl crate::Method<'_> for SendGameRequest {
-    const NAME: &'static str = "sendGame";
-    type Response = Message;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "sendGame", response(Message))]
+pub struct SendGameRequest {
 }
 /// This object represents a game. Use BotFather to create and edit games, their short names will act as unique identifiers.
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -2129,18 +1802,14 @@ pub struct Game {}
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct CallbackGame {}
 /// Use this method to set the score of the specified user in a game message. On success, if the message is not an inline message, the <a href="https://core.telegram.org/bots/api#message">Message</a> is returned, otherwise <em>True</em> is returned. Returns an error, if the new score is not greater than the user's current score in the chat and <em>force</em> is <em>False</em>.
-#[derive(serde::Serialize)]
-pub struct SetGameScoreRequest {}
-impl crate::Method<'_> for SetGameScoreRequest {
-    const NAME: &'static str = "setGameScore";
-    type Response = MessageOrTrue;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "setGameScore", response(MessageOrTrue))]
+pub struct SetGameScoreRequest {
 }
 /// Use this method to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. Returns an Array of <a href="https://core.telegram.org/bots/api#gamehighscore">GameHighScore</a> objects.
-#[derive(serde::Serialize)]
-pub struct GetGameHighScoresRequest {}
-impl crate::Method<'_> for GetGameHighScoresRequest {
-    const NAME: &'static str = "getGameHighScores";
-    type Response = Vec<GameHighScore>;
+#[derive(serde::Serialize, macros::Method)]
+#[method(name = "getGameHighScores", response(Vec<GameHighScore>))]
+pub struct GetGameHighScoresRequest {
 }
 /// This object represents one row of the high scores table for a game.
 #[derive(serde::Serialize, serde::Deserialize)]

@@ -169,25 +169,33 @@ fn main() -> Result<(), Box<dyn core::error::Error>> {
                 output.write_fmt(format_args!(
                     concat![
                         "/// {description}\n",
-                        "#[derive(serde::Serialize)]\n",
-                        "pub struct {name}Request {{"
+                        "#[derive(serde::Serialize, macros::Method)]\n",
+                        "#[method(name = {route:?}, response({return_type}))]\n",
+                        "pub struct {name}Request"
                     ],
                     name = name,
                     description = format_description(description),
-                ))?;
-                output.write_all(b"}\n")?;
-
-                output.write_fmt(format_args!(
-                    concat![
-                        "impl crate::Method<'_> for {name}Request {{\n",
-                        "    const NAME: &'static str = {route:?};\n",
-                        "    type Response = {return_type};\n",
-                        "}}\n",
-                    ],
-                    name = name,
                     route = route,
                     return_type = convert_type(returns),
                 ))?;
+                if fields.is_empty() {
+                    output.write_all(b";\n")?;
+                } else {
+                    output.write_all(b" {\n")?;
+                    output.write_all(b"}\n")?;
+                }
+
+                // output.write_fmt(format_args!(
+                //     concat![
+                //         "impl crate::Method<'_> for {name}Request {{\n",
+                //         "    const NAME: &'static str = {route:?};\n",
+                //         "    type Response = {return_type};\n",
+                //         "}}\n",
+                //     ],
+                //     name = name,
+                //     route = route,
+                //     return_type = convert_type(returns),
+                // ))?;
             }
             SchemaEntry::Union {
                 name,

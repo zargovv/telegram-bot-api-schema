@@ -5,6 +5,7 @@ edition = "2024"
 build = "build.rs"
 
 [dependencies]
+macros = { path = "../macros" }
 serde = { version = "1.0", features = ["derive"] }
 
 [build-dependencies]
