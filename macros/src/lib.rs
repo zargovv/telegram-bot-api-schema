@@ -115,6 +115,8 @@ impl MethodAttributes {
 #[proc_macro_derive(Method, attributes(method))]
 pub fn method(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     fn inner(input: proc_macro::TokenStream) -> proc_macro2::TokenStream {
+        use proc_macro2::TokenStream;
+
         let input = match parse::<ItemStruct>(input) {
             Ok(v) => v,
             Err(err) => return err.to_compile_error(),
@@ -128,13 +130,26 @@ pub fn method(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
                 Err(err) => return err,
             };
 
-        let mut ser_fields = proc_macro2::TokenStream::new();
+        let mut ser_fields = TokenStream::new();
+        let mut new_params = TokenStream::new();
+        let mut new_self_fields = TokenStream::new();
+
         for f in &input.fields {
             let Some(ident) = &f.ident else {
                 return quote_spanned!(f.span() => "field name expected");
             };
             let name = ident.to_string();
             ser_fields.extend(quote!(ser_struct.serialize_field(#name, &self.#ident)?;));
+
+            if matches!(&f.ty, Type::Path(p) if p.path.segments.first().is_some_and(|s| s.ident == "Option"))
+            {
+                new_self_fields.extend(quote!(#ident: None,));
+            } else {
+                // required field
+                let ty = &f.ty;
+                new_params.extend(quote!(#ident: #ty,));
+                new_self_fields.extend(quote!(#ident,));
+            }
         }
 
         quote! {
@@ -151,6 +166,12 @@ pub fn method(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
             impl crate::Method<'_> for #ident {
                 const NAME: &'static str = #name;
                 type Response = #response;
+            }
+
+            impl #ident {
+                pub fn new(#new_params) -> Self {
+                    Self { #new_self_fields }
+                }
             }
         }
     }
