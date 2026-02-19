@@ -201,7 +201,8 @@ fn main() -> Result<(), Box<dyn core::error::Error>> {
                 output.write_all(b" {\n")?;
                 for f in fields {
                     output.write_fmt(format_args!(
-                        "    pub {}: {},\n",
+                        "    /// {}\n    pub {}: {},\n",
+                        format_description(&f.description),
                         escape_name(&f.name),
                         convert_type(&f.ty, Some(backref)),
                     ))?;
