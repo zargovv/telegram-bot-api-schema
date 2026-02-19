@@ -278,6 +278,10 @@ export interface User {
      * *True*, if the bot has forum topic mode enabled in private chats. Returned only in [getMe](https://core.telegram.org/bots/api#getme).
      */
     has_topics_enabled: boolean | null;
+    /**
+     * *True*, if the bot allows users to create and delete topics in private chats. Returned only in [getMe](https://core.telegram.org/bots/api#getme).
+     */
+    allows_users_to_create_topics: boolean | null;
 }
 /**
  * This object represents a chat.
@@ -513,6 +517,10 @@ export interface ChatFullInfo {
      */
     rating: UserRating | null;
     /**
+     * For private chats, the first audio added to the profile of the user
+     */
+    first_profile_audio: Audio | null;
+    /**
      * The color scheme based on a unique gift that must be used for the chat's name, message replies and link previews
      */
     unique_gift_colors: UniqueGiftColors | null;
@@ -742,6 +750,14 @@ export interface Message {
      */
     left_chat_member: User | null;
     /**
+     * Service message: chat owner has left
+     */
+    chat_owner_left: ChatOwnerLeft | null;
+    /**
+     * Service message: chat owner has changed
+     */
+    chat_owner_changed: ChatOwnerChanged | null;
+    /**
      * A chat title was changed to this value
      */
     new_chat_title: string | null;
@@ -934,7 +950,7 @@ export interface Message {
      */
     web_app_data: WebAppData | null;
     /**
-     * Inline keyboard attached to the message. `login_url` buttons are represented as ordinary `url` buttons.
+     * [Inline keyboard](https://core.telegram.org/bots/api/bots/features#inline-keyboards) attached to the message. `login_url` buttons are represented as ordinary `url` buttons.
      */
     reply_markup: InlineKeyboardMarkup | null;
 }
@@ -965,7 +981,7 @@ export interface InaccessibleMessage {
     date: number;
 }
 /**
- * This object describes a message that can be inaccessible to the bot. It can be one of
+ * This object describes a message that can be inaccessible to the bot.
  */
 export type MaybeInaccessibleMessage = Message | InaccessibleMessage;
 /**
@@ -1138,7 +1154,7 @@ export interface ReplyParameters {
     /**
      * If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format `@channelusername`). Not supported for messages sent on behalf of a business account and messages from channel direct messages chats.
      */
-    chat_id: string | number | null;
+    chat_id: number | string | null;
     /**
      * Pass *True* if the message should be sent even if the specified message to be replied to is not found. Always *False* for replies in another chat or forum topic. Always *True* for messages sent on behalf of a business account.
      */
@@ -1165,7 +1181,7 @@ export interface ReplyParameters {
     checklist_task_id: number | null;
 }
 /**
- * This object describes the origin of a message. It can be one of
+ * This object describes the origin of a message.
  */
 export type MessageOrigin = MessageOriginUser | MessageOriginHiddenUser | MessageOriginChat | MessageOriginChannel;
 /**
@@ -1398,6 +1414,35 @@ export interface Story {
     id: number;
 }
 /**
+ * This object represents a video file of a specific quality.
+ */
+export interface VideoQuality {
+    /**
+     * Identifier for this file, which can be used to download or reuse the file
+     */
+    file_id: string;
+    /**
+     * Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
+     */
+    file_unique_id: string;
+    /**
+     * Video width
+     */
+    width: number;
+    /**
+     * Video height
+     */
+    height: number;
+    /**
+     * Codec that was used to encode the video, for example, “h264”, “h265”, or “av01”
+     */
+    codec: string;
+    /**
+     * File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
+     */
+    file_size: number | null;
+}
+/**
  * This object represents a video file.
  */
 export interface Video {
@@ -1433,6 +1478,10 @@ export interface Video {
      * Timestamp in seconds from which the video will play in the message
      */
     start_timestamp: number | null;
+    /**
+     * List of available qualities of the video
+     */
+    qualities: VideoQuality[] | null;
     /**
      * Original filename as defined by the sender
      */
@@ -1514,7 +1563,7 @@ export interface PaidMediaInfo {
     paid_media: PaidMedia[];
 }
 /**
- * This object describes paid media. Currently, it can be one of
+ * This object describes paid media.
  */
 export type PaidMedia = PaidMediaPreview | PaidMediaPhoto | PaidMediaVideo;
 /**
@@ -1963,7 +2012,7 @@ export interface ChatBoostAdded {
     boost_count: number;
 }
 /**
- * This object describes the way a background is filled based on the selected colors. Currently, it can be one of
+ * This object describes the way a background is filled based on the selected colors.
  */
 export type BackgroundFill = BackgroundFillSolid | BackgroundFillGradient | BackgroundFillFreeformGradient;
 /**
@@ -2014,7 +2063,7 @@ export interface BackgroundFillFreeformGradient {
     colors: number[];
 }
 /**
- * This object describes the type of a background. Currently, it can be one of
+ * This object describes the type of a background.
  */
 export type BackgroundType = BackgroundTypeFill | BackgroundTypeWallpaper | BackgroundTypePattern | BackgroundTypeChatTheme;
 /**
@@ -2594,6 +2643,19 @@ export interface UserProfilePhotos {
     photos: PhotoSize[][];
 }
 /**
+ * This object represents the audios displayed on a user's profile.
+ */
+export interface UserProfileAudios {
+    /**
+     * Total number of profile audios for the target user
+     */
+    total_count: number;
+    /**
+     * Requested profile audios
+     */
+    audios: Audio[];
+}
+/**
  * This object represents a file ready to be downloaded. The file can be downloaded via the link `https://api.telegram.org/file/bot<token>/<file_path>`. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling [getFile](https://core.telegram.org/bots/api#getfile).
  */
 export interface File {
@@ -2655,13 +2717,21 @@ export interface ReplyKeyboardMarkup {
     selective: boolean | null;
 }
 /**
- * This object represents one button of the reply keyboard. At most one of the optional fields must be used to specify type of the button. For simple text buttons, *String* can be used instead of this object to specify the button text.
+ * This object represents one button of the reply keyboard. At most one of the fields other than *text*, *icon_custom_emoji_id*, and *style* must be used to specify the type of the button. For simple text buttons, *String* can be used instead of this object to specify the button text.
  */
 export interface KeyboardButton {
     /**
-     * Text of the button. If none of the optional fields are used, it will be sent as a message when the button is pressed
+     * Text of the button. If none of the fields other than *text*, *icon_custom_emoji_id*, and *style* are used, it will be sent as a message when the button is pressed
      */
     text: string;
+    /**
+     * Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on [Fragment](https://fragment.com) or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription.
+     */
+    icon_custom_emoji_id: string | null;
+    /**
+     * Style of the button. Must be one of “danger” (red), “success” (green) or “primary” (blue). If omitted, then an app-specific style is used.
+     */
+    style: string | null;
     /**
      * If specified, pressing the button will open a list of suitable users. Identifiers of selected users will be sent to the bot in a “users_shared” service message. Available in private chats only.
      */
@@ -2803,13 +2873,21 @@ export interface InlineKeyboardMarkup {
     inline_keyboard: InlineKeyboardButton[][];
 }
 /**
- * This object represents one button of an inline keyboard. Exactly one of the optional fields must be used to specify type of the button.
+ * This object represents one button of an inline keyboard. Exactly one of the fields other than *text*, *icon_custom_emoji_id*, and *style* must be used to specify the type of the button.
  */
 export interface InlineKeyboardButton {
     /**
      * Label text on the button
      */
     text: string;
+    /**
+     * Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on [Fragment](https://fragment.com) or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription.
+     */
+    icon_custom_emoji_id: string | null;
+    /**
+     * Style of the button. Must be one of “danger” (red), “success” (green) or “primary” (blue). If omitted, then an app-specific style is used.
+     */
+    style: string | null;
     /**
      * HTTP or tg:// URL to be opened when the button is pressed. Links `tg://user?id=<user_id>` can be used to mention a user by their identifier without using a username, if this is allowed by their privacy settings.
      */
@@ -3141,7 +3219,7 @@ export interface ChatMemberUpdated {
     via_chat_folder_invite_link: boolean | null;
 }
 /**
- * This object contains information about one member of a chat. Currently, the following 6 types of chat members are supported:
+ * This object contains information about one member of a chat.
  */
 export type ChatMember = ChatMemberOwner | ChatMemberAdministrator | ChatMemberMember | ChatMemberRestricted | ChatMemberLeft | ChatMemberBanned;
 /**
@@ -3609,7 +3687,7 @@ export interface LocationAddress {
     street: string | null;
 }
 /**
- * Describes the type of a clickable area on a story. Currently, it can be one of
+ * Describes the type of a clickable area on a story.
  */
 export type StoryAreaType = StoryAreaTypeLocation | StoryAreaTypeSuggestedReaction | StoryAreaTypeLink | StoryAreaTypeWeather | StoryAreaTypeUniqueGift;
 /**
@@ -3728,7 +3806,7 @@ export interface ChatLocation {
     address: string;
 }
 /**
- * This object describes the type of a reaction. Currently, it can be one of
+ * This object describes the type of a reaction.
  */
 export type ReactionType = ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid;
 /**
@@ -3954,9 +4032,13 @@ export interface UniqueGiftModel {
      */
     sticker: Sticker;
     /**
-     * The number of unique gifts that receive this model for every 1000 gifts upgraded
+     * The number of unique gifts that receive this model for every 1000 gift upgrades. Always 0 for crafted gifts.
      */
     rarity_per_mille: number;
+    /**
+     * Rarity of the model if it is a crafted model. Currently, can be “uncommon”, “rare”, “epic”, or “legendary”.
+     */
+    rarity: string | null;
 }
 /**
  * This object describes the symbol shown on the pattern of a unique gift.
@@ -4079,6 +4161,10 @@ export interface UniqueGift {
      */
     is_premium: true | null;
     /**
+     * *True*, if the gift was used to craft another gift and isn't available anymore
+     */
+    is_burned: true | null;
+    /**
      * *True*, if the gift is assigned from the TON blockchain and can't be resold or transferred in Telegram
      */
     is_from_blockchain: true | null;
@@ -4170,7 +4256,7 @@ export interface UniqueGiftInfo {
     next_transfer_date: number | null;
 }
 /**
- * This object describes a gift received and owned by a user or a chat. Currently, it can be one of
+ * This object describes a gift received and owned by a user or a chat.
  */
 export type OwnedGift = OwnedGiftRegular | OwnedGiftUnique;
 /**
@@ -4348,7 +4434,7 @@ export interface BotCommand {
     description: string;
 }
 /**
- * This object represents the scope to which bot commands are applied. Currently, the following 7 scopes are supported:
+ * This object represents the scope to which bot commands are applied.
  */
 export type BotCommandScope = BotCommandScopeDefault | BotCommandScopeAllPrivateChats | BotCommandScopeAllGroupChats | BotCommandScopeAllChatAdministrators | BotCommandScopeChat | BotCommandScopeChatAdministrators | BotCommandScopeChatMember;
 /**
@@ -4398,7 +4484,7 @@ export interface BotCommandScopeChat {
     /**
      * Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`). Channel direct messages chats and channel chats aren't supported.
      */
-    chat_id: string | number;
+    chat_id: number | string;
 }
 /**
  * Represents the [scope](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering all administrators of a specific group or supergroup chat.
@@ -4411,7 +4497,7 @@ export interface BotCommandScopeChatAdministrators {
     /**
      * Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`). Channel direct messages chats and channel chats aren't supported.
      */
-    chat_id: string | number;
+    chat_id: number | string;
 }
 /**
  * Represents the [scope](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering a specific member of a group or supergroup chat.
@@ -4424,7 +4510,7 @@ export interface BotCommandScopeChatMember {
     /**
      * Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`). Channel direct messages chats and channel chats aren't supported.
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier of the target user
      */
@@ -4458,7 +4544,7 @@ export interface BotShortDescription {
     short_description: string;
 }
 /**
- * This object describes the bot's menu button in a private chat. It should be one of
+ * This object describes the bot's menu button in a private chat.
  */
 export type MenuButton = MenuButtonCommands | MenuButtonWebApp | MenuButtonDefault;
 /**
@@ -4497,7 +4583,7 @@ export interface MenuButtonDefault {
     type: string;
 }
 /**
- * This object describes the source of a chat boost. It can be one of
+ * This object describes the source of a chat boost.
  */
 export type ChatBoostSource = ChatBoostSourcePremium | ChatBoostSourceGiftCode | ChatBoostSourceGiveaway;
 /**
@@ -4605,6 +4691,24 @@ export interface ChatBoostRemoved {
      * Source of the removed boost
      */
     source: ChatBoostSource;
+}
+/**
+ * Describes a service message about the chat owner leaving the chat.
+ */
+export interface ChatOwnerLeft {
+    /**
+     * The user which will be the new owner of the chat if the previous owner does not return to the chat
+     */
+    new_owner: User | null;
+}
+/**
+ * Describes a service message about an ownership change in the chat.
+ */
+export interface ChatOwnerChanged {
+    /**
+     * The new owner of the chat
+     */
+    new_owner: User;
 }
 /**
  * This object represents a list of boosts added to a chat by a user.
@@ -4736,7 +4840,7 @@ export interface ResponseParameters {
     retry_after: number | null;
 }
 /**
- * This object represents the content of a media message to be sent. It should be one of
+ * This object represents the content of a media message to be sent.
  */
 export type InputMedia = InputMediaAnimation | InputMediaDocument | InputMediaAudio | InputMediaPhoto | InputMediaVideo;
 /**
@@ -4962,7 +5066,7 @@ export interface InputMediaDocument {
 // deno-lint-ignore no-empty-interface
 export interface InputFile {}
 /**
- * This object describes the paid media to be sent. Currently, it can be one of
+ * This object describes the paid media to be sent.
  */
 export type InputPaidMedia = InputPaidMediaPhoto | InputPaidMediaVideo;
 /**
@@ -5020,7 +5124,7 @@ export interface InputPaidMediaVideo {
     supports_streaming: boolean | null;
 }
 /**
- * This object describes a profile photo to set. Currently, it can be one of
+ * This object describes a profile photo to set.
  */
 export type InputProfilePhoto = InputProfilePhotoStatic | InputProfilePhotoAnimated;
 /**
@@ -5054,7 +5158,7 @@ export interface InputProfilePhotoAnimated {
     main_frame_timestamp: number | null;
 }
 /**
- * This object describes the content of a story to post. Currently, it can be one of
+ * This object describes the content of a story to post.
  */
 export type InputStoryContent = InputStoryContentPhoto | InputStoryContentVideo;
 /**
@@ -5284,7 +5388,7 @@ export interface SendMessageRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
      */
@@ -5336,7 +5440,7 @@ export interface SendMessageRequest {
     /**
      * Additional interface options. A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/api/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/api/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user
      */
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | null;
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | null;
 }
 export type SendMessageResponse = Message;
 /**
@@ -5346,7 +5450,7 @@ export interface ForwardMessageRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
      */
@@ -5358,7 +5462,7 @@ export interface ForwardMessageRequest {
     /**
      * Unique identifier for the chat where the original message was sent (or channel username in the format `@channelusername`)
      */
-    from_chat_id: string | number;
+    from_chat_id: number | string;
     /**
      * New start timestamp for the forwarded video in the message
      */
@@ -5392,7 +5496,7 @@ export interface ForwardMessagesRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
      */
@@ -5404,7 +5508,7 @@ export interface ForwardMessagesRequest {
     /**
      * Unique identifier for the chat where the original messages were sent (or channel username in the format `@channelusername`)
      */
-    from_chat_id: string | number;
+    from_chat_id: number | string;
     /**
      * A JSON-serialized list of 1-100 identifiers of messages in the chat *from_chat_id* to forward. The identifiers must be specified in a strictly increasing order.
      */
@@ -5426,7 +5530,7 @@ export interface CopyMessageRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
      */
@@ -5438,7 +5542,7 @@ export interface CopyMessageRequest {
     /**
      * Unique identifier for the chat where the original message was sent (or channel username in the format `@channelusername`)
      */
-    from_chat_id: string | number;
+    from_chat_id: number | string;
     /**
      * Message identifier in the chat specified in *from_chat_id*
      */
@@ -5490,7 +5594,7 @@ export interface CopyMessageRequest {
     /**
      * Additional interface options. A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/api/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/api/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user
      */
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | null;
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | null;
 }
 export type CopyMessageResponse = MessageId;
 /**
@@ -5500,7 +5604,7 @@ export interface CopyMessagesRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
      */
@@ -5512,7 +5616,7 @@ export interface CopyMessagesRequest {
     /**
      * Unique identifier for the chat where the original messages were sent (or channel username in the format `@channelusername`)
      */
-    from_chat_id: string | number;
+    from_chat_id: number | string;
     /**
      * A JSON-serialized list of 1-100 identifiers of messages in the chat *from_chat_id* to copy. The identifiers must be specified in a strictly increasing order.
      */
@@ -5542,7 +5646,7 @@ export interface SendPhotoRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
      */
@@ -5554,7 +5658,7 @@ export interface SendPhotoRequest {
     /**
      * Photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a photo from the Internet, or upload a new photo using multipart/form-data. The photo must be at most 10 MB in size. The photo's width and height must not exceed 10000 in total. Width and height ratio must be at most 20. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files)
      */
-    photo: string | InputFile;
+    photo: InputFile | string;
     /**
      * Photo caption (may also be used when resending photos by *file_id*), 0-1024 characters after entities parsing
      */
@@ -5602,7 +5706,7 @@ export interface SendPhotoRequest {
     /**
      * Additional interface options. A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/api/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/api/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user
      */
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | null;
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | null;
 }
 export type SendPhotoResponse = Message;
 /**
@@ -5616,7 +5720,7 @@ export interface SendAudioRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
      */
@@ -5628,7 +5732,7 @@ export interface SendAudioRequest {
     /**
      * Audio file to send. Pass a file_id as String to send an audio file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an audio file from the Internet, or upload a new one using multipart/form-data. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files)
      */
-    audio: string | InputFile;
+    audio: InputFile | string;
     /**
      * Audio caption, 0-1024 characters after entities parsing
      */
@@ -5656,7 +5760,7 @@ export interface SendAudioRequest {
     /**
      * Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files)
      */
-    thumbnail: string | InputFile | null;
+    thumbnail: InputFile | string | null;
     /**
      * Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound.
      */
@@ -5684,7 +5788,7 @@ export interface SendAudioRequest {
     /**
      * Additional interface options. A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/api/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/api/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user
      */
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | null;
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | null;
 }
 export type SendAudioResponse = Message;
 /**
@@ -5698,7 +5802,7 @@ export interface SendDocumentRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
      */
@@ -5710,11 +5814,11 @@ export interface SendDocumentRequest {
     /**
      * File to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files)
      */
-    document: string | InputFile;
+    document: InputFile | string;
     /**
      * Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files)
      */
-    thumbnail: string | InputFile | null;
+    thumbnail: InputFile | string | null;
     /**
      * Document caption (may also be used when resending documents by *file_id*), 0-1024 characters after entities parsing
      */
@@ -5758,7 +5862,7 @@ export interface SendDocumentRequest {
     /**
      * Additional interface options. A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/api/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/api/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user
      */
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | null;
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | null;
 }
 export type SendDocumentResponse = Message;
 /**
@@ -5772,7 +5876,7 @@ export interface SendVideoRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
      */
@@ -5784,7 +5888,7 @@ export interface SendVideoRequest {
     /**
      * Video to send. Pass a file_id as String to send a video that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a video from the Internet, or upload a new video using multipart/form-data. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files)
      */
-    video: string | InputFile;
+    video: InputFile | string;
     /**
      * Duration of sent video in seconds
      */
@@ -5800,11 +5904,11 @@ export interface SendVideoRequest {
     /**
      * Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files)
      */
-    thumbnail: string | InputFile | null;
+    thumbnail: InputFile | string | null;
     /**
      * Cover for the video in the message. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files)
      */
-    cover: string | InputFile | null;
+    cover: InputFile | string | null;
     /**
      * Start timestamp for the video in the message
      */
@@ -5860,7 +5964,7 @@ export interface SendVideoRequest {
     /**
      * Additional interface options. A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/api/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/api/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user
      */
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | null;
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | null;
 }
 export type SendVideoResponse = Message;
 /**
@@ -5874,7 +5978,7 @@ export interface SendAnimationRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
      */
@@ -5886,7 +5990,7 @@ export interface SendAnimationRequest {
     /**
      * Animation to send. Pass a file_id as String to send an animation that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an animation from the Internet, or upload a new animation using multipart/form-data. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files)
      */
-    animation: string | InputFile;
+    animation: InputFile | string;
     /**
      * Duration of sent animation in seconds
      */
@@ -5902,7 +6006,7 @@ export interface SendAnimationRequest {
     /**
      * Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files)
      */
-    thumbnail: string | InputFile | null;
+    thumbnail: InputFile | string | null;
     /**
      * Animation caption (may also be used when resending animation by *file_id*), 0-1024 characters after entities parsing
      */
@@ -5950,7 +6054,7 @@ export interface SendAnimationRequest {
     /**
      * Additional interface options. A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/api/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/api/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user
      */
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | null;
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | null;
 }
 export type SendAnimationResponse = Message;
 /**
@@ -5964,7 +6068,7 @@ export interface SendVoiceRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
      */
@@ -5976,7 +6080,7 @@ export interface SendVoiceRequest {
     /**
      * Audio file to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files)
      */
-    voice: string | InputFile;
+    voice: InputFile | string;
     /**
      * Voice message caption, 0-1024 characters after entities parsing
      */
@@ -6020,7 +6124,7 @@ export interface SendVoiceRequest {
     /**
      * Additional interface options. A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/api/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/api/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user
      */
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | null;
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | null;
 }
 export type SendVoiceResponse = Message;
 /**
@@ -6034,7 +6138,7 @@ export interface SendVideoNoteRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
      */
@@ -6046,7 +6150,7 @@ export interface SendVideoNoteRequest {
     /**
      * Video note to send. Pass a file_id as String to send a video note that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files). Sending video notes by a URL is currently unsupported
      */
-    video_note: string | InputFile;
+    video_note: InputFile | string;
     /**
      * Duration of sent video in seconds
      */
@@ -6058,7 +6162,7 @@ export interface SendVideoNoteRequest {
     /**
      * Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files)
      */
-    thumbnail: string | InputFile | null;
+    thumbnail: InputFile | string | null;
     /**
      * Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound.
      */
@@ -6086,7 +6190,7 @@ export interface SendVideoNoteRequest {
     /**
      * Additional interface options. A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/api/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/api/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user
      */
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | null;
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | null;
 }
 export type SendVideoNoteResponse = Message;
 /**
@@ -6100,7 +6204,7 @@ export interface SendPaidMediaRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`). If the chat is a channel, all Telegram Star proceeds from this media will be credited to the chat's balance. Otherwise, they will be credited to the bot's balance.
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
      */
@@ -6160,7 +6264,7 @@ export interface SendPaidMediaRequest {
     /**
      * Additional interface options. A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/api/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/api/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user
      */
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | null;
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | null;
 }
 export type SendPaidMediaResponse = Message;
 /**
@@ -6174,7 +6278,7 @@ export interface SendMediaGroupRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
      */
@@ -6220,7 +6324,7 @@ export interface SendLocationRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
      */
@@ -6280,7 +6384,7 @@ export interface SendLocationRequest {
     /**
      * Additional interface options. A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/api/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/api/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user
      */
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | null;
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | null;
 }
 export type SendLocationResponse = Message;
 /**
@@ -6294,7 +6398,7 @@ export interface SendVenueRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
      */
@@ -6362,7 +6466,7 @@ export interface SendVenueRequest {
     /**
      * Additional interface options. A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/api/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/api/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user
      */
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | null;
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | null;
 }
 export type SendVenueResponse = Message;
 /**
@@ -6376,7 +6480,7 @@ export interface SendContactRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
      */
@@ -6428,7 +6532,7 @@ export interface SendContactRequest {
     /**
      * Additional interface options. A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/api/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/api/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user
      */
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | null;
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | null;
 }
 export type SendContactResponse = Message;
 /**
@@ -6442,7 +6546,7 @@ export interface SendPollRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`). Polls can't be sent to channel direct messages chats.
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
      */
@@ -6526,7 +6630,7 @@ export interface SendPollRequest {
     /**
      * Additional interface options. A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/api/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/api/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user
      */
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | null;
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | null;
 }
 export type SendPollResponse = Message;
 /**
@@ -6562,7 +6666,7 @@ export interface SendChecklistRequest {
      */
     reply_parameters: ReplyParameters | null;
     /**
-     * A JSON-serialized object for an inline keyboard
+     * A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/api/bots/features#inline-keyboards)
      */
     reply_markup: InlineKeyboardMarkup | null;
 }
@@ -6578,7 +6682,7 @@ export interface SendDiceRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
      */
@@ -6618,7 +6722,7 @@ export interface SendDiceRequest {
     /**
      * Additional interface options. A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/api/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/api/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user
      */
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | null;
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | null;
 }
 export type SendDiceResponse = Message;
 /**
@@ -6662,7 +6766,7 @@ export interface SendChatActionRequest {
     /**
      * Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`). Channel chats and channel direct messages chats aren't supported.
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread or topic of a forum; for supergroups and private chats of bots with forum topic mode enabled only
      */
@@ -6680,7 +6784,7 @@ export interface SetMessageReactionRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Identifier of the target message. If the message belongs to a media group, the reaction is set to the first non-deleted message in the group instead.
      */
@@ -6713,6 +6817,24 @@ export interface GetUserProfilePhotosRequest {
     limit: number | null;
 }
 export type GetUserProfilePhotosResponse = UserProfilePhotos;
+/**
+ * Use this method to get a list of profile audios for a user. Returns a [UserProfileAudios](https://core.telegram.org/bots/api#userprofileaudios) object.
+ */
+export interface GetUserProfileAudiosRequest {
+    /**
+     * Unique identifier of the target user
+     */
+    user_id: number;
+    /**
+     * Sequential number of the first audio to be returned. By default, all audios are returned.
+     */
+    offset: number | null;
+    /**
+     * Limits the number of audios to be retrieved. Values between 1-100 are accepted. Defaults to 100.
+     */
+    limit: number | null;
+}
+export type GetUserProfileAudiosResponse = UserProfileAudios;
 /**
  * Changes the emoji status for a given user that previously allowed the bot to manage their emoji status via the Mini App method [requestEmojiStatusAccess](https://core.telegram.org/bots/api/bots/webapps#initializing-mini-apps). Returns *True* on success.
  */
@@ -6748,7 +6870,7 @@ export interface BanChatMemberRequest {
     /**
      * Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier of the target user
      */
@@ -6770,7 +6892,7 @@ export interface UnbanChatMemberRequest {
     /**
      * Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier of the target user
      */
@@ -6788,7 +6910,7 @@ export interface RestrictChatMemberRequest {
     /**
      * Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier of the target user
      */
@@ -6814,7 +6936,7 @@ export interface PromoteChatMemberRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier of the target user
      */
@@ -6892,7 +7014,7 @@ export interface SetChatAdministratorCustomTitleRequest {
     /**
      * Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier of the target user
      */
@@ -6910,7 +7032,7 @@ export interface BanChatSenderChatRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier of the target sender chat
      */
@@ -6924,7 +7046,7 @@ export interface UnbanChatSenderChatRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier of the target sender chat
      */
@@ -6938,7 +7060,7 @@ export interface SetChatPermissionsRequest {
     /**
      * Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * A JSON-serialized object for new default chat permissions
      */
@@ -6956,7 +7078,7 @@ export interface ExportChatInviteLinkRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
 }
 export type ExportChatInviteLinkResponse = string;
 /**
@@ -6966,7 +7088,7 @@ export interface CreateChatInviteLinkRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Invite link name; 0-32 characters
      */
@@ -6992,7 +7114,7 @@ export interface EditChatInviteLinkRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * The invite link to edit
      */
@@ -7022,7 +7144,7 @@ export interface CreateChatSubscriptionInviteLinkRequest {
     /**
      * Unique identifier for the target channel chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Invite link name; 0-32 characters
      */
@@ -7044,7 +7166,7 @@ export interface EditChatSubscriptionInviteLinkRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * The invite link to edit
      */
@@ -7062,7 +7184,7 @@ export interface RevokeChatInviteLinkRequest {
     /**
      * Unique identifier of the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * The invite link to revoke
      */
@@ -7076,7 +7198,7 @@ export interface ApproveChatJoinRequestRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier of the target user
      */
@@ -7090,7 +7212,7 @@ export interface DeclineChatJoinRequestRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier of the target user
      */
@@ -7104,7 +7226,7 @@ export interface SetChatPhotoRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * New chat photo, uploaded using multipart/form-data
      */
@@ -7118,7 +7240,7 @@ export interface DeleteChatPhotoRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
 }
 export type DeleteChatPhotoResponse = true;
 /**
@@ -7128,7 +7250,7 @@ export interface SetChatTitleRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * New chat title, 1-128 characters
      */
@@ -7142,7 +7264,7 @@ export interface SetChatDescriptionRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * New chat description, 0-255 characters
      */
@@ -7160,7 +7282,7 @@ export interface PinChatMessageRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Identifier of a message to pin
      */
@@ -7182,7 +7304,7 @@ export interface UnpinChatMessageRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Identifier of the message to unpin. Required if *business_connection_id* is specified. If not specified, the most recent pinned message (by sending date) will be unpinned.
      */
@@ -7196,7 +7318,7 @@ export interface UnpinAllChatMessagesRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
 }
 export type UnpinAllChatMessagesResponse = true;
 /**
@@ -7206,7 +7328,7 @@ export interface LeaveChatRequest {
     /**
      * Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`). Channel direct messages chats aren't supported; leave the corresponding channel instead.
      */
-    chat_id: string | number;
+    chat_id: number | string;
 }
 export type LeaveChatResponse = true;
 /**
@@ -7216,7 +7338,7 @@ export interface GetChatRequest {
     /**
      * Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
 }
 export type GetChatResponse = ChatFullInfo;
 /**
@@ -7226,7 +7348,7 @@ export interface GetChatAdministratorsRequest {
     /**
      * Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
 }
 export type GetChatAdministratorsResponse = ChatMember[];
 /**
@@ -7236,7 +7358,7 @@ export interface GetChatMemberCountRequest {
     /**
      * Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
 }
 export type GetChatMemberCountResponse = number;
 /**
@@ -7246,7 +7368,7 @@ export interface GetChatMemberRequest {
     /**
      * Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier of the target user
      */
@@ -7260,7 +7382,7 @@ export interface SetChatStickerSetRequest {
     /**
      * Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Name of the sticker set to be set as the group sticker set
      */
@@ -7274,7 +7396,7 @@ export interface DeleteChatStickerSetRequest {
     /**
      * Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
 }
 export type DeleteChatStickerSetResponse = true;
 /**
@@ -7284,13 +7406,13 @@ export type DeleteChatStickerSetResponse = true;
 export interface GetForumTopicIconStickersRequest {}
 export type GetForumTopicIconStickersResponse = Sticker[];
 /**
- * Use this method to create a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the *can_manage_topics* administrator rights. Returns information about the created topic as a [ForumTopic](https://core.telegram.org/bots/api#forumtopic) object.
+ * Use this method to create a topic in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the *can_manage_topics* administrator right. Returns information about the created topic as a [ForumTopic](https://core.telegram.org/bots/api#forumtopic) object.
  */
 export interface CreateForumTopicRequest {
     /**
      * Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Topic name, 1-128 characters
      */
@@ -7312,7 +7434,7 @@ export interface EditForumTopicRequest {
     /**
      * Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread of the forum topic
      */
@@ -7334,7 +7456,7 @@ export interface CloseForumTopicRequest {
     /**
      * Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread of the forum topic
      */
@@ -7348,7 +7470,7 @@ export interface ReopenForumTopicRequest {
     /**
      * Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread of the forum topic
      */
@@ -7362,7 +7484,7 @@ export interface DeleteForumTopicRequest {
     /**
      * Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread of the forum topic
      */
@@ -7376,7 +7498,7 @@ export interface UnpinAllForumTopicMessagesRequest {
     /**
      * Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread of the forum topic
      */
@@ -7390,7 +7512,7 @@ export interface EditGeneralForumTopicRequest {
     /**
      * Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * New topic name, 1-128 characters
      */
@@ -7404,7 +7526,7 @@ export interface CloseGeneralForumTopicRequest {
     /**
      * Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
 }
 export type CloseGeneralForumTopicResponse = true;
 /**
@@ -7414,7 +7536,7 @@ export interface ReopenGeneralForumTopicRequest {
     /**
      * Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
 }
 export type ReopenGeneralForumTopicResponse = true;
 /**
@@ -7424,7 +7546,7 @@ export interface HideGeneralForumTopicRequest {
     /**
      * Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
 }
 export type HideGeneralForumTopicResponse = true;
 /**
@@ -7434,7 +7556,7 @@ export interface UnhideGeneralForumTopicRequest {
     /**
      * Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
 }
 export type UnhideGeneralForumTopicResponse = true;
 /**
@@ -7444,7 +7566,7 @@ export interface UnpinAllGeneralForumTopicMessagesRequest {
     /**
      * Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
 }
 export type UnpinAllGeneralForumTopicMessagesResponse = true;
 /**
@@ -7482,7 +7604,7 @@ export interface GetUserChatBoostsRequest {
     /**
      * Unique identifier for the chat or username of the channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier of the target user
      */
@@ -7618,6 +7740,22 @@ export interface GetMyShortDescriptionRequest {
 }
 export type GetMyShortDescriptionResponse = BotShortDescription;
 /**
+ * Changes the profile photo of the bot. Returns *True* on success.
+ */
+export interface SetMyProfilePhotoRequest {
+    /**
+     * The new profile photo to set
+     */
+    photo: InputProfilePhoto;
+}
+export type SetMyProfilePhotoResponse = true;
+/**
+ * Removes the profile photo of the bot. Requires no parameters. Returns *True* on success.
+ */
+// deno-lint-ignore no-empty-interface
+export interface RemoveMyProfilePhotoRequest {}
+export type RemoveMyProfilePhotoResponse = true;
+/**
  * Use this method to change the bot's menu button in a private chat, or the default menu button. Returns *True* on success.
  */
 export interface SetChatMenuButtonRequest {
@@ -7682,7 +7820,7 @@ export interface SendGiftRequest {
     /**
      * Required if *user_id* is not specified. Unique identifier for the chat or username of the channel (in the format `@channelusername`) that will receive the gift.
      */
-    chat_id: string | number | null;
+    chat_id: number | string | null;
     /**
      * Identifier of the gift; limited gifts can't be sent to channel chats
      */
@@ -7756,7 +7894,7 @@ export interface VerifyChatRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`). Channel direct messages chats can't be verified.
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Custom description for the verification; 0-70 characters. Must be empty if the organization isn't allowed to provide a custom verification description.
      */
@@ -7780,7 +7918,7 @@ export interface RemoveChatVerificationRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
 }
 export type RemoveChatVerificationResponse = true;
 /**
@@ -8034,7 +8172,7 @@ export interface GetChatGiftsRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Pass *True* to exclude gifts that aren't saved to the chat's profile page. Always *True*, unless the bot has the *can_post_messages* administrator right in the channel.
      */
@@ -8266,7 +8404,7 @@ export interface EditMessageTextRequest {
     /**
      * Required if *inline_message_id* is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number | null;
+    chat_id: number | string | null;
     /**
      * Required if *inline_message_id* is not specified. Identifier of the message to edit
      */
@@ -8296,7 +8434,7 @@ export interface EditMessageTextRequest {
      */
     reply_markup: InlineKeyboardMarkup | null;
 }
-export type EditMessageTextResponse = true | Message;
+export type EditMessageTextResponse = Message | true;
 /**
  * Use this method to edit captions of messages. On success, if the edited message is not an inline message, the edited [Message](https://core.telegram.org/bots/api#message) is returned, otherwise *True* is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within **48 hours** from the time they were sent.
  */
@@ -8308,7 +8446,7 @@ export interface EditMessageCaptionRequest {
     /**
      * Required if *inline_message_id* is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number | null;
+    chat_id: number | string | null;
     /**
      * Required if *inline_message_id* is not specified. Identifier of the message to edit
      */
@@ -8338,7 +8476,7 @@ export interface EditMessageCaptionRequest {
      */
     reply_markup: InlineKeyboardMarkup | null;
 }
-export type EditMessageCaptionResponse = true | Message;
+export type EditMessageCaptionResponse = Message | true;
 /**
  * Use this method to edit animation, audio, document, photo, or video messages, or to add media to text messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited [Message](https://core.telegram.org/bots/api#message) is returned, otherwise *True* is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within **48 hours** from the time they were sent.
  */
@@ -8350,7 +8488,7 @@ export interface EditMessageMediaRequest {
     /**
      * Required if *inline_message_id* is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number | null;
+    chat_id: number | string | null;
     /**
      * Required if *inline_message_id* is not specified. Identifier of the message to edit
      */
@@ -8368,7 +8506,7 @@ export interface EditMessageMediaRequest {
      */
     reply_markup: InlineKeyboardMarkup | null;
 }
-export type EditMessageMediaResponse = true | Message;
+export type EditMessageMediaResponse = Message | true;
 /**
  * Use this method to edit live location messages. A location can be edited until its *live_period* expires or editing is explicitly disabled by a call to [stopMessageLiveLocation](https://core.telegram.org/bots/api#stopmessagelivelocation). On success, if the edited message is not an inline message, the edited [Message](https://core.telegram.org/bots/api#message) is returned, otherwise *True* is returned.
  */
@@ -8380,7 +8518,7 @@ export interface EditMessageLiveLocationRequest {
     /**
      * Required if *inline_message_id* is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number | null;
+    chat_id: number | string | null;
     /**
      * Required if *inline_message_id* is not specified. Identifier of the message to edit
      */
@@ -8418,7 +8556,7 @@ export interface EditMessageLiveLocationRequest {
      */
     reply_markup: InlineKeyboardMarkup | null;
 }
-export type EditMessageLiveLocationResponse = true | Message;
+export type EditMessageLiveLocationResponse = Message | true;
 /**
  * Use this method to stop updating a live location message before *live_period* expires. On success, if the message is not an inline message, the edited [Message](https://core.telegram.org/bots/api#message) is returned, otherwise *True* is returned.
  */
@@ -8430,7 +8568,7 @@ export interface StopMessageLiveLocationRequest {
     /**
      * Required if *inline_message_id* is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number | null;
+    chat_id: number | string | null;
     /**
      * Required if *inline_message_id* is not specified. Identifier of the message with live location to stop
      */
@@ -8444,7 +8582,7 @@ export interface StopMessageLiveLocationRequest {
      */
     reply_markup: InlineKeyboardMarkup | null;
 }
-export type StopMessageLiveLocationResponse = true | Message;
+export type StopMessageLiveLocationResponse = Message | true;
 /**
  * Use this method to edit a checklist on behalf of a connected business account. On success, the edited [Message](https://core.telegram.org/bots/api#message) is returned.
  */
@@ -8466,7 +8604,7 @@ export interface EditMessageChecklistRequest {
      */
     checklist: InputChecklist;
     /**
-     * A JSON-serialized object for the new inline keyboard for the message
+     * A JSON-serialized object for the new [inline keyboard](https://core.telegram.org/bots/api/bots/features#inline-keyboards) for the message
      */
     reply_markup: InlineKeyboardMarkup | null;
 }
@@ -8482,7 +8620,7 @@ export interface EditMessageReplyMarkupRequest {
     /**
      * Required if *inline_message_id* is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number | null;
+    chat_id: number | string | null;
     /**
      * Required if *inline_message_id* is not specified. Identifier of the message to edit
      */
@@ -8496,7 +8634,7 @@ export interface EditMessageReplyMarkupRequest {
      */
     reply_markup: InlineKeyboardMarkup | null;
 }
-export type EditMessageReplyMarkupResponse = true | Message;
+export type EditMessageReplyMarkupResponse = Message | true;
 /**
  * Use this method to stop a poll which was sent by the bot. On success, the stopped [Poll](https://core.telegram.org/bots/api#poll) is returned.
  */
@@ -8508,7 +8646,7 @@ export interface StopPollRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Identifier of the original message with the poll
      */
@@ -8572,7 +8710,7 @@ export interface DeleteMessageRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Identifier of the message to delete
      */
@@ -8586,7 +8724,7 @@ export interface DeleteMessagesRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * A JSON-serialized list of 1-100 identifiers of messages to delete. See [deleteMessage](https://core.telegram.org/bots/api#deletemessage) for limitations on which messages can be deleted
      */
@@ -8740,7 +8878,7 @@ export interface SendStickerRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
      */
@@ -8752,7 +8890,7 @@ export interface SendStickerRequest {
     /**
      * Sticker to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBM sticker using multipart/form-data. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files). Video and animated stickers can't be sent via an HTTP URL.
      */
-    sticker: string | InputFile;
+    sticker: InputFile | string;
     /**
      * Emoji associated with the sticker; only for just uploaded stickers
      */
@@ -8784,7 +8922,7 @@ export interface SendStickerRequest {
     /**
      * Additional interface options. A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/api/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/api/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user
      */
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | null;
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | null;
 }
 export type SendStickerResponse = Message;
 /**
@@ -8990,7 +9128,7 @@ export interface SetStickerSetThumbnailRequest {
     /**
      * A **.WEBP** or **.PNG** image with the thumbnail, must be up to 128 kilobytes in size and have a width and height of exactly 100px, or a **.TGS** animation with a thumbnail up to 32 kilobytes in size (see <a href="/stickers#animation-requirements">[https://core.telegram.org/stickers#animation-requirements](https://core.telegram.org/stickers#animation-requirements)</a> for animated sticker technical requirements), or a **.WEBM** video with the thumbnail up to 32 kilobytes in size; see <a href="/stickers#video-requirements">[https://core.telegram.org/stickers#video-requirements](https://core.telegram.org/stickers#video-requirements)</a> for video sticker technical requirements. Pass a *file_id* as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files). Animated and video sticker set thumbnails can't be uploaded via HTTP URL. If omitted, then the thumbnail is dropped and the first sticker is used as the thumbnail.
      */
-    thumbnail: string | InputFile | null;
+    thumbnail: InputFile | string | null;
     /**
      * Format of the thumbnail, must be one of “static” for a **.WEBP** or **.PNG** image, “animated” for a **.TGS** animation, or “video” for a **.WEBM** video
      */
@@ -9101,7 +9239,7 @@ export interface InlineQueryResultsButton {
     start_parameter: string | null;
 }
 /**
- * This object represents one result of an inline query. Telegram clients currently support results of the following 20 types:
+ * This object represents one result of an inline query.
  */
 export type InlineQueryResult = InlineQueryResultCachedAudio | InlineQueryResultCachedDocument | InlineQueryResultCachedGif | InlineQueryResultCachedMpeg4Gif | InlineQueryResultCachedPhoto | InlineQueryResultCachedSticker | InlineQueryResultCachedVideo | InlineQueryResultCachedVoice | InlineQueryResultArticle | InlineQueryResultAudio | InlineQueryResultContact | InlineQueryResultGame | InlineQueryResultDocument | InlineQueryResultGif | InlineQueryResultLocation | InlineQueryResultMpeg4Gif | InlineQueryResultPhoto | InlineQueryResultVenue | InlineQueryResultVideo | InlineQueryResultVoice;
 /**
@@ -9544,7 +9682,7 @@ export interface InlineQueryResultDocument {
      */
     description: string | null;
     /**
-     * Inline keyboard attached to the message
+     * [Inline keyboard](https://core.telegram.org/bots/api/bots/features#inline-keyboards) attached to the message
      */
     reply_markup: InlineKeyboardMarkup | null;
     /**
@@ -10097,7 +10235,7 @@ export interface InlineQueryResultCachedAudio {
     input_message_content: InputMessageContent | null;
 }
 /**
- * This object represents the content of a message to be sent as a result of an inline query. Telegram clients currently support the following 5 types:
+ * This object represents the content of a message to be sent as a result of an inline query.
  */
 export type InputMessageContent = InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent;
 /**
@@ -10391,7 +10529,7 @@ export interface SendInvoiceRequest {
     /**
      * Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
      */
-    chat_id: string | number;
+    chat_id: number | string;
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
      */
@@ -10943,7 +11081,7 @@ export interface PaidMediaPurchased {
     paid_media_payload: string;
 }
 /**
- * This object describes the state of a revenue withdrawal operation. Currently, it can be one of
+ * This object describes the state of a revenue withdrawal operation.
  */
 export type RevenueWithdrawalState = RevenueWithdrawalStatePending | RevenueWithdrawalStateSucceeded | RevenueWithdrawalStateFailed;
 /**
@@ -11007,7 +11145,7 @@ export interface AffiliateInfo {
     nanostar_amount: number | null;
 }
 /**
- * This object describes the source of a transaction, or its recipient for outgoing transactions. Currently, it can be one of
+ * This object describes the source of a transaction, or its recipient for outgoing transactions.
  */
 export type TransactionPartner = TransactionPartnerUser | TransactionPartnerChat | TransactionPartnerAffiliateProgram | TransactionPartnerFragment | TransactionPartnerTelegramAds | TransactionPartnerTelegramApi | TransactionPartnerOther;
 /**
@@ -11282,7 +11420,7 @@ export interface SetPassportDataErrorsRequest {
 }
 export type SetPassportDataErrorsResponse = true;
 /**
- * This object represents an error in the Telegram Passport element which was submitted that should be resolved by the user. It should be one of:
+ * This object represents an error in the Telegram Passport element which was submitted that should be resolved by the user.
  */
 export type PassportElementError = PassportElementErrorDataField | PassportElementErrorFrontSide | PassportElementErrorReverseSide | PassportElementErrorSelfie | PassportElementErrorFile | PassportElementErrorFiles | PassportElementErrorTranslationFile | PassportElementErrorTranslationFiles | PassportElementErrorUnspecified;
 /**
@@ -11591,7 +11729,7 @@ export interface SetGameScoreRequest {
      */
     inline_message_id: string | null;
 }
-export type SetGameScoreResponse = true | Message;
+export type SetGameScoreResponse = Message | true;
 /**
  * Use this method to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. Returns an Array of [GameHighScore](https://core.telegram.org/bots/api#gamehighscore) objects.
  */

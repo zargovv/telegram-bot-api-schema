@@ -2,9 +2,9 @@
 
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
-pub enum MessageOrTrue {
-    Message(Message),
-    True(crate::True),
+pub enum Attachment {
+    InputFile(InputFile),
+    String(String),
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
@@ -16,14 +16,14 @@ pub enum ReplyMarkup {
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
-pub enum ChatId {
-    Integer(i64),
-    String(String),
+pub enum MessageOrTrue {
+    Message(Message),
+    True(crate::True),
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
-pub enum Attachment {
-    InputFile(InputFile),
+pub enum ChatId {
+    Integer(i64),
     String(String),
 }
 /// This <a href="https://core.telegram.org/bots/api#available-types">object</a> represents an incoming update.<br>At most <strong>one</strong> of the optional parameters can be present in any given update.
@@ -115,6 +115,7 @@ pub struct User {
     pub can_connect_to_business: Option<bool>,
     pub has_main_web_app: Option<bool>,
     pub has_topics_enabled: Option<bool>,
+    pub allows_users_to_create_topics: Option<bool>,
 }
 /// This object represents a chat.
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -179,6 +180,7 @@ pub struct ChatFullInfo {
     pub linked_chat_id: Option<i64>,
     pub location: Option<ChatLocation>,
     pub rating: Option<UserRating>,
+    pub first_profile_audio: Option<Audio>,
     pub unique_gift_colors: Option<UniqueGiftColors>,
     pub paid_message_star_count: Option<i64>,
 }
@@ -239,6 +241,8 @@ pub struct Message {
     pub location: Option<Location>,
     pub new_chat_members: Option<Vec<User>>,
     pub left_chat_member: Option<User>,
+    pub chat_owner_left: Option<ChatOwnerLeft>,
+    pub chat_owner_changed: Option<ChatOwnerChanged>,
     pub new_chat_title: Option<String>,
     pub new_chat_photo: Option<Vec<PhotoSize>>,
     pub delete_chat_photo: Option<crate::True>,
@@ -459,6 +463,16 @@ pub struct Story {
     pub chat: Chat,
     pub id: i64,
 }
+/// This object represents a video file of a specific quality.
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct VideoQuality {
+    pub file_id: String,
+    pub file_unique_id: String,
+    pub width: i64,
+    pub height: i64,
+    pub codec: String,
+    pub file_size: Option<i64>,
+}
 /// This object represents a video file.
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct Video {
@@ -470,6 +484,7 @@ pub struct Video {
     pub thumbnail: Option<PhotoSize>,
     pub cover: Option<Vec<PhotoSize>>,
     pub start_timestamp: Option<i64>,
+    pub qualities: Option<Vec<VideoQuality>>,
     pub file_name: Option<String>,
     pub mime_type: Option<String>,
     pub file_size: Option<i64>,
@@ -951,6 +966,12 @@ pub struct UserProfilePhotos {
     pub total_count: i64,
     pub photos: Vec<Vec<PhotoSize>>,
 }
+/// This object represents the audios displayed on a user's profile.
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct UserProfileAudios {
+    pub total_count: i64,
+    pub audios: Vec<Audio>,
+}
 /// This object represents a file ready to be downloaded. The file can be downloaded via the link <code>https://api.telegram.org/file/bot<token>/<file_path></code>. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling <a href="https://core.telegram.org/bots/api#getfile">getFile</a>.
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct File {
@@ -974,10 +995,12 @@ pub struct ReplyKeyboardMarkup {
     pub input_field_placeholder: Option<String>,
     pub selective: Option<bool>,
 }
-/// This object represents one button of the reply keyboard. At most one of the optional fields must be used to specify type of the button. For simple text buttons, <em>String</em> can be used instead of this object to specify the button text.
+/// This object represents one button of the reply keyboard. At most one of the fields other than <em>text</em>, <em>icon_custom_emoji_id</em>, and <em>style</em> must be used to specify the type of the button. For simple text buttons, <em>String</em> can be used instead of this object to specify the button text.
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct KeyboardButton {
     pub text: String,
+    pub icon_custom_emoji_id: Option<String>,
+    pub style: Option<String>,
     pub request_users: Option<KeyboardButtonRequestUsers>,
     pub request_chat: Option<KeyboardButtonRequestChat>,
     pub request_contact: Option<bool>,
@@ -1027,10 +1050,12 @@ pub struct ReplyKeyboardRemove {
 pub struct InlineKeyboardMarkup {
     pub inline_keyboard: Vec<Vec<InlineKeyboardButton>>,
 }
-/// This object represents one button of an inline keyboard. Exactly one of the optional fields must be used to specify type of the button.
+/// This object represents one button of an inline keyboard. Exactly one of the fields other than <em>text</em>, <em>icon_custom_emoji_id</em>, and <em>style</em> must be used to specify the type of the button.
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct InlineKeyboardButton {
     pub text: String,
+    pub icon_custom_emoji_id: Option<String>,
+    pub style: Option<String>,
     pub url: Option<String>,
     pub callback_data: Option<String>,
     pub web_app: Option<WebAppInfo>,
@@ -1460,6 +1485,7 @@ pub struct UniqueGiftModel {
     pub name: String,
     pub sticker: Sticker,
     pub rarity_per_mille: i64,
+    pub rarity: Option<String>,
 }
 /// This object describes the symbol shown on the pattern of a unique gift.
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -1504,6 +1530,7 @@ pub struct UniqueGift {
     pub symbol: UniqueGiftSymbol,
     pub backdrop: UniqueGiftBackdrop,
     pub is_premium: Option<crate::True>,
+    pub is_burned: Option<crate::True>,
     pub is_from_blockchain: Option<crate::True>,
     pub colors: Option<UniqueGiftColors>,
     pub publisher_chat: Option<Chat>,
@@ -1741,6 +1768,16 @@ pub struct ChatBoostRemoved {
     pub boost_id: String,
     pub remove_date: i64,
     pub source: ChatBoostSource,
+}
+/// Describes a service message about the chat owner leaving the chat.
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct ChatOwnerLeft {
+    pub new_owner: Option<User>,
+}
+/// Describes a service message about an ownership change in the chat.
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct ChatOwnerChanged {
+    pub new_owner: User,
 }
 /// This object represents a list of boosts added to a chat by a user.
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -2393,6 +2430,14 @@ pub struct GetUserProfilePhotosRequest {
     pub offset: Option<i64>,
     pub limit: Option<i64>,
 }
+/// Use this method to get a list of profile audios for a user. Returns a <a href="https://core.telegram.org/bots/api#userprofileaudios">UserProfileAudios</a> object.
+#[derive(macros::Method)]
+#[method(name = "getUserProfileAudios", response(UserProfileAudios))]
+pub struct GetUserProfileAudiosRequest {
+    pub user_id: i64,
+    pub offset: Option<i64>,
+    pub limit: Option<i64>,
+}
 /// Changes the emoji status for a given user that previously allowed the bot to manage their emoji status via the Mini App method <a href="/bots/webapps#initializing-mini-apps">requestEmojiStatusAccess</a>. Returns <em>True</em> on success.
 #[derive(macros::Method)]
 #[method(name = "setUserEmojiStatus", response(crate::True))]
@@ -2650,7 +2695,7 @@ pub struct DeleteChatStickerSetRequest {
 #[derive(macros::Method)]
 #[method(name = "getForumTopicIconStickers", response(Vec<Sticker>))]
 pub struct GetForumTopicIconStickersRequest;
-/// Use this method to create a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the <em>can_manage_topics</em> administrator rights. Returns information about the created topic as a <a href="https://core.telegram.org/bots/api#forumtopic">ForumTopic</a> object.
+/// Use this method to create a topic in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the <em>can_manage_topics</em> administrator right. Returns information about the created topic as a <a href="https://core.telegram.org/bots/api#forumtopic">ForumTopic</a> object.
 #[derive(macros::Method)]
 #[method(name = "createForumTopic", response(ForumTopic))]
 pub struct CreateForumTopicRequest {
@@ -2817,6 +2862,16 @@ pub struct SetMyShortDescriptionRequest {
 pub struct GetMyShortDescriptionRequest {
     pub language_code: Option<String>,
 }
+/// Changes the profile photo of the bot. Returns <em>True</em> on success.
+#[derive(macros::Method)]
+#[method(name = "setMyProfilePhoto", response(crate::True))]
+pub struct SetMyProfilePhotoRequest {
+    pub photo: InputProfilePhoto,
+}
+/// Removes the profile photo of the bot. Requires no parameters. Returns <em>True</em> on success.
+#[derive(macros::Method)]
+#[method(name = "removeMyProfilePhoto", response(crate::True))]
+pub struct RemoveMyProfilePhotoRequest;
 /// Use this method to change the bot's menu button in a private chat, or the default menu button. Returns <em>True</em> on success.
 #[derive(macros::Method)]
 #[method(name = "setChatMenuButton", response(crate::True))]

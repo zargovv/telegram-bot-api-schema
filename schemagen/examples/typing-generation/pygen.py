@@ -131,7 +131,7 @@ def safename(s: str) -> str:
             return s
 
 
-with Path("examples/typing-generation/typing.pyi").open("w") as file:
+with Path("schemagen/examples/typing-generation/typing.pyi").open("w") as file:
     file.write(
         "# this file is auto-generated\n\n"
         "from enum import Enum\nfrom typing import Literal, TypedDict\n\n",

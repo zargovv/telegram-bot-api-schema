@@ -69,7 +69,7 @@ const te = new TextEncoder();
 
 const schema: Schema = JSON.parse(await Deno.readTextFile("schema.json"));
 
-const outputFile = await Deno.create("examples/typing-generation/typing.d.ts");
+const outputFile = await Deno.create("schemagen/examples/typing-generation/typing.d.ts");
 outputFile.write(te.encode("// this file is auto-generated\n\n"));
 
 function convertType(ty: Type): string;

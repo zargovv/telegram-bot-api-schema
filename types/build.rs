@@ -158,6 +158,8 @@ fn escape_name(s: &str) -> &str {
 }
 
 fn main() -> Result<(), Box<dyn core::error::Error>> {
+    println!("cargo::rerun-if-changed=../schema.json");
+
     let schema = serde_json::from_reader::<_, Vec<SchemaEntry>>(BufReader::new(File::open(
         "../schema.json",
     )?))?;

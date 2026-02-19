@@ -74,6 +74,7 @@ class User(TypedDict):
     can_connect_to_business: bool | None
     has_main_web_app: bool | None
     has_topics_enabled: bool | None
+    allows_users_to_create_topics: bool | None
 class Chat(TypedDict):
     id: int
     type: str
@@ -132,6 +133,7 @@ class ChatFullInfo(TypedDict):
     linked_chat_id: int | None
     location: ChatLocation | None
     rating: UserRating | None
+    first_profile_audio: Audio | None
     unique_gift_colors: UniqueGiftColors | None
     paid_message_star_count: int | None
 class Message(TypedDict):
@@ -189,6 +191,8 @@ class Message(TypedDict):
     location: Location | None
     new_chat_members: list[User] | None
     left_chat_member: User | None
+    chat_owner_left: ChatOwnerLeft | None
+    chat_owner_changed: ChatOwnerChanged | None
     new_chat_title: str | None
     new_chat_photo: list[PhotoSize] | None
     delete_chat_photo: Literal[True] | None
@@ -286,7 +290,7 @@ class ExternalReplyInfo(TypedDict):
     venue: Venue | None
 class ReplyParameters(TypedDict):
     message_id: int
-    chat_id: str | int | None
+    chat_id: int | str | None
     allow_sending_without_reply: bool | None
     quote: str | None
     quote_parse_mode: str | None
@@ -349,6 +353,13 @@ class Document(TypedDict):
 class Story(TypedDict):
     chat: Chat
     id: int
+class VideoQuality(TypedDict):
+    file_id: str
+    file_unique_id: str
+    width: int
+    height: int
+    codec: str
+    file_size: int | None
 class Video(TypedDict):
     file_id: str
     file_unique_id: str
@@ -358,6 +369,7 @@ class Video(TypedDict):
     thumbnail: PhotoSize | None
     cover: list[PhotoSize] | None
     start_timestamp: int | None
+    qualities: list[VideoQuality] | None
     file_name: str | None
     mime_type: str | None
     file_size: int | None
@@ -637,6 +649,9 @@ class DirectMessagesTopic(TypedDict):
 class UserProfilePhotos(TypedDict):
     total_count: int
     photos: list[list[PhotoSize]]
+class UserProfileAudios(TypedDict):
+    total_count: int
+    audios: list[Audio]
 class File(TypedDict):
     file_id: str
     file_unique_id: str
@@ -653,6 +668,8 @@ class ReplyKeyboardMarkup(TypedDict):
     selective: bool | None
 class KeyboardButton(TypedDict):
     text: str
+    icon_custom_emoji_id: str | None
+    style: str | None
     request_users: KeyboardButtonRequestUsers | None
     request_chat: KeyboardButtonRequestChat | None
     request_contact: bool | None
@@ -688,6 +705,8 @@ class InlineKeyboardMarkup(TypedDict):
     inline_keyboard: list[list[InlineKeyboardButton]]
 class InlineKeyboardButton(TypedDict):
     text: str
+    icon_custom_emoji_id: str | None
+    style: str | None
     url: str | None
     callback_data: str | None
     web_app: WebAppInfo | None
@@ -962,6 +981,7 @@ class UniqueGiftModel(TypedDict):
     name: str
     sticker: Sticker
     rarity_per_mille: int
+    rarity: str | None
 class UniqueGiftSymbol(TypedDict):
     name: str
     sticker: Sticker
@@ -991,6 +1011,7 @@ class UniqueGift(TypedDict):
     symbol: UniqueGiftSymbol
     backdrop: UniqueGiftBackdrop
     is_premium: Literal[True] | None
+    is_burned: Literal[True] | None
     is_from_blockchain: Literal[True] | None
     colors: UniqueGiftColors | None
     publisher_chat: Chat | None
@@ -1067,13 +1088,13 @@ class BotCommandScopeAllChatAdministrators(TypedDict):
     type: str
 class BotCommandScopeChat(TypedDict):
     type: str
-    chat_id: str | int
+    chat_id: int | str
 class BotCommandScopeChatAdministrators(TypedDict):
     type: str
-    chat_id: str | int
+    chat_id: int | str
 class BotCommandScopeChatMember(TypedDict):
     type: str
-    chat_id: str | int
+    chat_id: int | str
     user_id: int
 class BotName(TypedDict):
     name: str
@@ -1116,6 +1137,10 @@ class ChatBoostRemoved(TypedDict):
     boost_id: str
     remove_date: int
     source: ChatBoostSource
+class ChatOwnerLeft(TypedDict):
+    new_owner: User | None
+class ChatOwnerChanged(TypedDict):
+    new_owner: User
 class UserChatBoosts(TypedDict):
     boosts: list[ChatBoost]
 class BusinessBotRights(TypedDict):
@@ -1278,7 +1303,7 @@ class CloseRequest(TypedDict):
 type CloseResponse = Literal[True]
 class SendMessageRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int | None
     direct_messages_topic_id: int | None
     text: str
@@ -1291,13 +1316,13 @@ class SendMessageRequest(TypedDict):
     message_effect_id: str | None
     suggested_post_parameters: SuggestedPostParameters | None
     reply_parameters: ReplyParameters | None
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | None
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
 type SendMessageResponse = Message
 class ForwardMessageRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int | None
     direct_messages_topic_id: int | None
-    from_chat_id: str | int
+    from_chat_id: int | str
     video_start_timestamp: int | None
     disable_notification: bool | None
     protect_content: bool | None
@@ -1306,19 +1331,19 @@ class ForwardMessageRequest(TypedDict):
     message_id: int
 type ForwardMessageResponse = Message
 class ForwardMessagesRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int | None
     direct_messages_topic_id: int | None
-    from_chat_id: str | int
+    from_chat_id: int | str
     message_ids: list[int]
     disable_notification: bool | None
     protect_content: bool | None
 type ForwardMessagesResponse = MessageId
 class CopyMessageRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int | None
     direct_messages_topic_id: int | None
-    from_chat_id: str | int
+    from_chat_id: int | str
     message_id: int
     video_start_timestamp: int | None
     caption: str | None
@@ -1331,13 +1356,13 @@ class CopyMessageRequest(TypedDict):
     message_effect_id: str | None
     suggested_post_parameters: SuggestedPostParameters | None
     reply_parameters: ReplyParameters | None
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | None
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
 type CopyMessageResponse = MessageId
 class CopyMessagesRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int | None
     direct_messages_topic_id: int | None
-    from_chat_id: str | int
+    from_chat_id: int | str
     message_ids: list[int]
     disable_notification: bool | None
     protect_content: bool | None
@@ -1345,10 +1370,10 @@ class CopyMessagesRequest(TypedDict):
 type CopyMessagesResponse = MessageId
 class SendPhotoRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int | None
     direct_messages_topic_id: int | None
-    photo: str | InputFile
+    photo: InputFile | str
     caption: str | None
     parse_mode: str | None
     caption_entities: list[MessageEntity] | None
@@ -1360,36 +1385,36 @@ class SendPhotoRequest(TypedDict):
     message_effect_id: str | None
     suggested_post_parameters: SuggestedPostParameters | None
     reply_parameters: ReplyParameters | None
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | None
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
 type SendPhotoResponse = Message
 class SendAudioRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int | None
     direct_messages_topic_id: int | None
-    audio: str | InputFile
+    audio: InputFile | str
     caption: str | None
     parse_mode: str | None
     caption_entities: list[MessageEntity] | None
     duration: int | None
     performer: str | None
     title: str | None
-    thumbnail: str | InputFile | None
+    thumbnail: InputFile | str | None
     disable_notification: bool | None
     protect_content: bool | None
     allow_paid_broadcast: bool | None
     message_effect_id: str | None
     suggested_post_parameters: SuggestedPostParameters | None
     reply_parameters: ReplyParameters | None
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | None
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
 type SendAudioResponse = Message
 class SendDocumentRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int | None
     direct_messages_topic_id: int | None
-    document: str | InputFile
-    thumbnail: str | InputFile | None
+    document: InputFile | str
+    thumbnail: InputFile | str | None
     caption: str | None
     parse_mode: str | None
     caption_entities: list[MessageEntity] | None
@@ -1400,19 +1425,19 @@ class SendDocumentRequest(TypedDict):
     message_effect_id: str | None
     suggested_post_parameters: SuggestedPostParameters | None
     reply_parameters: ReplyParameters | None
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | None
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
 type SendDocumentResponse = Message
 class SendVideoRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int | None
     direct_messages_topic_id: int | None
-    video: str | InputFile
+    video: InputFile | str
     duration: int | None
     width: int | None
     height: int | None
-    thumbnail: str | InputFile | None
-    cover: str | InputFile | None
+    thumbnail: InputFile | str | None
+    cover: InputFile | str | None
     start_timestamp: int | None
     caption: str | None
     parse_mode: str | None
@@ -1426,18 +1451,18 @@ class SendVideoRequest(TypedDict):
     message_effect_id: str | None
     suggested_post_parameters: SuggestedPostParameters | None
     reply_parameters: ReplyParameters | None
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | None
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
 type SendVideoResponse = Message
 class SendAnimationRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int | None
     direct_messages_topic_id: int | None
-    animation: str | InputFile
+    animation: InputFile | str
     duration: int | None
     width: int | None
     height: int | None
-    thumbnail: str | InputFile | None
+    thumbnail: InputFile | str | None
     caption: str | None
     parse_mode: str | None
     caption_entities: list[MessageEntity] | None
@@ -1449,14 +1474,14 @@ class SendAnimationRequest(TypedDict):
     message_effect_id: str | None
     suggested_post_parameters: SuggestedPostParameters | None
     reply_parameters: ReplyParameters | None
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | None
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
 type SendAnimationResponse = Message
 class SendVoiceRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int | None
     direct_messages_topic_id: int | None
-    voice: str | InputFile
+    voice: InputFile | str
     caption: str | None
     parse_mode: str | None
     caption_entities: list[MessageEntity] | None
@@ -1467,28 +1492,28 @@ class SendVoiceRequest(TypedDict):
     message_effect_id: str | None
     suggested_post_parameters: SuggestedPostParameters | None
     reply_parameters: ReplyParameters | None
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | None
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
 type SendVoiceResponse = Message
 class SendVideoNoteRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int | None
     direct_messages_topic_id: int | None
-    video_note: str | InputFile
+    video_note: InputFile | str
     duration: int | None
     length: int | None
-    thumbnail: str | InputFile | None
+    thumbnail: InputFile | str | None
     disable_notification: bool | None
     protect_content: bool | None
     allow_paid_broadcast: bool | None
     message_effect_id: str | None
     suggested_post_parameters: SuggestedPostParameters | None
     reply_parameters: ReplyParameters | None
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | None
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
 type SendVideoNoteResponse = Message
 class SendPaidMediaRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int | None
     direct_messages_topic_id: int | None
     star_count: int
@@ -1503,11 +1528,11 @@ class SendPaidMediaRequest(TypedDict):
     allow_paid_broadcast: bool | None
     suggested_post_parameters: SuggestedPostParameters | None
     reply_parameters: ReplyParameters | None
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | None
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
 type SendPaidMediaResponse = Message
 class SendMediaGroupRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int | None
     direct_messages_topic_id: int | None
     media: list[InputMediaAudio]
@@ -1519,7 +1544,7 @@ class SendMediaGroupRequest(TypedDict):
 type SendMediaGroupResponse = Message
 class SendLocationRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int | None
     direct_messages_topic_id: int | None
     latitude: float
@@ -1534,11 +1559,11 @@ class SendLocationRequest(TypedDict):
     message_effect_id: str | None
     suggested_post_parameters: SuggestedPostParameters | None
     reply_parameters: ReplyParameters | None
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | None
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
 type SendLocationResponse = Message
 class SendVenueRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int | None
     direct_messages_topic_id: int | None
     latitude: float
@@ -1555,11 +1580,11 @@ class SendVenueRequest(TypedDict):
     message_effect_id: str | None
     suggested_post_parameters: SuggestedPostParameters | None
     reply_parameters: ReplyParameters | None
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | None
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
 type SendVenueResponse = Message
 class SendContactRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int | None
     direct_messages_topic_id: int | None
     phone_number: str
@@ -1572,11 +1597,11 @@ class SendContactRequest(TypedDict):
     message_effect_id: str | None
     suggested_post_parameters: SuggestedPostParameters | None
     reply_parameters: ReplyParameters | None
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | None
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
 type SendContactResponse = Message
 class SendPollRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int | None
     question: str
     question_parse_mode: str | None
@@ -1597,7 +1622,7 @@ class SendPollRequest(TypedDict):
     allow_paid_broadcast: bool | None
     message_effect_id: str | None
     reply_parameters: ReplyParameters | None
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | None
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
 type SendPollResponse = Message
 class SendChecklistRequest(TypedDict):
     business_connection_id: str
@@ -1611,7 +1636,7 @@ class SendChecklistRequest(TypedDict):
 type SendChecklistResponse = Message
 class SendDiceRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int | None
     direct_messages_topic_id: int | None
     emoji: str | None
@@ -1621,7 +1646,7 @@ class SendDiceRequest(TypedDict):
     message_effect_id: str | None
     suggested_post_parameters: SuggestedPostParameters | None
     reply_parameters: ReplyParameters | None
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | None
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
 type SendDiceResponse = Message
 class SendMessageDraftRequest(TypedDict):
     chat_id: int
@@ -1633,12 +1658,12 @@ class SendMessageDraftRequest(TypedDict):
 type SendMessageDraftResponse = Literal[True]
 class SendChatActionRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int | None
     action: str
 type SendChatActionResponse = Literal[True]
 class SetMessageReactionRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     message_id: int
     reaction: list[ReactionType] | None
     is_big: bool | None
@@ -1648,6 +1673,11 @@ class GetUserProfilePhotosRequest(TypedDict):
     offset: int | None
     limit: int | None
 type GetUserProfilePhotosResponse = UserProfilePhotos
+class GetUserProfileAudiosRequest(TypedDict):
+    user_id: int
+    offset: int | None
+    limit: int | None
+type GetUserProfileAudiosResponse = UserProfileAudios
 class SetUserEmojiStatusRequest(TypedDict):
     user_id: int
     emoji_status_custom_emoji_id: str | None
@@ -1657,25 +1687,25 @@ class GetFileRequest(TypedDict):
     file_id: str
 type GetFileResponse = File
 class BanChatMemberRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     user_id: int
     until_date: int | None
     revoke_messages: bool | None
 type BanChatMemberResponse = Literal[True]
 class UnbanChatMemberRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     user_id: int
     only_if_banned: bool | None
 type UnbanChatMemberResponse = Literal[True]
 class RestrictChatMemberRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     user_id: int
     permissions: ChatPermissions
     use_independent_chat_permissions: bool | None
     until_date: int | None
 type RestrictChatMemberResponse = Literal[True]
 class PromoteChatMemberRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     user_id: int
     is_anonymous: bool | None
     can_manage_chat: bool | None
@@ -1695,35 +1725,35 @@ class PromoteChatMemberRequest(TypedDict):
     can_manage_direct_messages: bool | None
 type PromoteChatMemberResponse = Literal[True]
 class SetChatAdministratorCustomTitleRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     user_id: int
     custom_title: str
 type SetChatAdministratorCustomTitleResponse = Literal[True]
 class BanChatSenderChatRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     sender_chat_id: int
 type BanChatSenderChatResponse = Literal[True]
 class UnbanChatSenderChatRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     sender_chat_id: int
 type UnbanChatSenderChatResponse = Literal[True]
 class SetChatPermissionsRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     permissions: ChatPermissions
     use_independent_chat_permissions: bool | None
 type SetChatPermissionsResponse = Literal[True]
 class ExportChatInviteLinkRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
 type ExportChatInviteLinkResponse = str
 class CreateChatInviteLinkRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     name: str | None
     expire_date: int | None
     member_limit: int | None
     creates_join_request: bool | None
 type CreateChatInviteLinkResponse = ChatInviteLink
 class EditChatInviteLinkRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     invite_link: str
     name: str | None
     expire_date: int | None
@@ -1731,129 +1761,129 @@ class EditChatInviteLinkRequest(TypedDict):
     creates_join_request: bool | None
 type EditChatInviteLinkResponse = ChatInviteLink
 class CreateChatSubscriptionInviteLinkRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     name: str | None
     subscription_period: int
     subscription_price: int
 type CreateChatSubscriptionInviteLinkResponse = ChatInviteLink
 class EditChatSubscriptionInviteLinkRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     invite_link: str
     name: str | None
 type EditChatSubscriptionInviteLinkResponse = ChatInviteLink
 class RevokeChatInviteLinkRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     invite_link: str
 type RevokeChatInviteLinkResponse = ChatInviteLink
 class ApproveChatJoinRequestRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     user_id: int
 type ApproveChatJoinRequestResponse = Literal[True]
 class DeclineChatJoinRequestRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     user_id: int
 type DeclineChatJoinRequestResponse = Literal[True]
 class SetChatPhotoRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     photo: InputFile
 type SetChatPhotoResponse = Literal[True]
 class DeleteChatPhotoRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
 type DeleteChatPhotoResponse = Literal[True]
 class SetChatTitleRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     title: str
 type SetChatTitleResponse = Literal[True]
 class SetChatDescriptionRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     description: str | None
 type SetChatDescriptionResponse = Literal[True]
 class PinChatMessageRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int
+    chat_id: int | str
     message_id: int
     disable_notification: bool | None
 type PinChatMessageResponse = Literal[True]
 class UnpinChatMessageRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int
+    chat_id: int | str
     message_id: int | None
 type UnpinChatMessageResponse = Literal[True]
 class UnpinAllChatMessagesRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
 type UnpinAllChatMessagesResponse = Literal[True]
 class LeaveChatRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
 type LeaveChatResponse = Literal[True]
 class GetChatRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
 type GetChatResponse = ChatFullInfo
 class GetChatAdministratorsRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
 type GetChatAdministratorsResponse = list[ChatMember]
 class GetChatMemberCountRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
 type GetChatMemberCountResponse = int
 class GetChatMemberRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     user_id: int
 type GetChatMemberResponse = ChatMember
 class SetChatStickerSetRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     sticker_set_name: str
 type SetChatStickerSetResponse = Literal[True]
 class DeleteChatStickerSetRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
 type DeleteChatStickerSetResponse = Literal[True]
 class GetForumTopicIconStickersRequest(TypedDict):
     ...
 type GetForumTopicIconStickersResponse = list[Sticker]
 class CreateForumTopicRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     name: str
     icon_color: int | None
     icon_custom_emoji_id: str | None
 type CreateForumTopicResponse = ForumTopic
 class EditForumTopicRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int
     name: str | None
     icon_custom_emoji_id: str | None
 type EditForumTopicResponse = Literal[True]
 class CloseForumTopicRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int
 type CloseForumTopicResponse = Literal[True]
 class ReopenForumTopicRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int
 type ReopenForumTopicResponse = Literal[True]
 class DeleteForumTopicRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int
 type DeleteForumTopicResponse = Literal[True]
 class UnpinAllForumTopicMessagesRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int
 type UnpinAllForumTopicMessagesResponse = Literal[True]
 class EditGeneralForumTopicRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     name: str
 type EditGeneralForumTopicResponse = Literal[True]
 class CloseGeneralForumTopicRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
 type CloseGeneralForumTopicResponse = Literal[True]
 class ReopenGeneralForumTopicRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
 type ReopenGeneralForumTopicResponse = Literal[True]
 class HideGeneralForumTopicRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
 type HideGeneralForumTopicResponse = Literal[True]
 class UnhideGeneralForumTopicRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
 type UnhideGeneralForumTopicResponse = Literal[True]
 class UnpinAllGeneralForumTopicMessagesRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
 type UnpinAllGeneralForumTopicMessagesResponse = Literal[True]
 class AnswerCallbackQueryRequest(TypedDict):
     callback_query_id: str
@@ -1863,7 +1893,7 @@ class AnswerCallbackQueryRequest(TypedDict):
     cache_time: int | None
 type AnswerCallbackQueryResponse = Literal[True]
 class GetUserChatBoostsRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     user_id: int
 type GetUserChatBoostsResponse = UserChatBoosts
 class GetBusinessConnectionRequest(TypedDict):
@@ -1903,6 +1933,12 @@ type SetMyShortDescriptionResponse = Literal[True]
 class GetMyShortDescriptionRequest(TypedDict):
     language_code: str | None
 type GetMyShortDescriptionResponse = BotShortDescription
+class SetMyProfilePhotoRequest(TypedDict):
+    photo: InputProfilePhoto
+type SetMyProfilePhotoResponse = Literal[True]
+class RemoveMyProfilePhotoRequest(TypedDict):
+    ...
+type RemoveMyProfilePhotoResponse = Literal[True]
 class SetChatMenuButtonRequest(TypedDict):
     chat_id: int | None
     menu_button: MenuButton | None
@@ -1922,7 +1958,7 @@ class GetAvailableGiftsRequest(TypedDict):
 type GetAvailableGiftsResponse = Gifts
 class SendGiftRequest(TypedDict):
     user_id: int | None
-    chat_id: str | int | None
+    chat_id: int | str | None
     gift_id: str
     pay_for_upgrade: bool | None
     text: str | None
@@ -1942,14 +1978,14 @@ class VerifyUserRequest(TypedDict):
     custom_description: str | None
 type VerifyUserResponse = Literal[True]
 class VerifyChatRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     custom_description: str | None
 type VerifyChatResponse = Literal[True]
 class RemoveUserVerificationRequest(TypedDict):
     user_id: int
 type RemoveUserVerificationResponse = Literal[True]
 class RemoveChatVerificationRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
 type RemoveChatVerificationResponse = Literal[True]
 class ReadBusinessMessageRequest(TypedDict):
     business_connection_id: str
@@ -2019,7 +2055,7 @@ class GetUserGiftsRequest(TypedDict):
     limit: int | None
 type GetUserGiftsResponse = OwnedGifts
 class GetChatGiftsRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     exclude_unsaved: bool | None
     exclude_saved: bool | None
     exclude_unlimited: bool | None
@@ -2081,7 +2117,7 @@ class DeleteStoryRequest(TypedDict):
 type DeleteStoryResponse = Literal[True]
 class EditMessageTextRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int | None
+    chat_id: int | str | None
     message_id: int | None
     inline_message_id: str | None
     text: str
@@ -2089,10 +2125,10 @@ class EditMessageTextRequest(TypedDict):
     entities: list[MessageEntity] | None
     link_preview_options: LinkPreviewOptions | None
     reply_markup: InlineKeyboardMarkup | None
-type EditMessageTextResponse = Literal[True] | Message
+type EditMessageTextResponse = Message | Literal[True]
 class EditMessageCaptionRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int | None
+    chat_id: int | str | None
     message_id: int | None
     inline_message_id: str | None
     caption: str | None
@@ -2100,18 +2136,18 @@ class EditMessageCaptionRequest(TypedDict):
     caption_entities: list[MessageEntity] | None
     show_caption_above_media: bool | None
     reply_markup: InlineKeyboardMarkup | None
-type EditMessageCaptionResponse = Literal[True] | Message
+type EditMessageCaptionResponse = Message | Literal[True]
 class EditMessageMediaRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int | None
+    chat_id: int | str | None
     message_id: int | None
     inline_message_id: str | None
     media: InputMedia
     reply_markup: InlineKeyboardMarkup | None
-type EditMessageMediaResponse = Literal[True] | Message
+type EditMessageMediaResponse = Message | Literal[True]
 class EditMessageLiveLocationRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int | None
+    chat_id: int | str | None
     message_id: int | None
     inline_message_id: str | None
     latitude: float
@@ -2121,14 +2157,14 @@ class EditMessageLiveLocationRequest(TypedDict):
     heading: int | None
     proximity_alert_radius: int | None
     reply_markup: InlineKeyboardMarkup | None
-type EditMessageLiveLocationResponse = Literal[True] | Message
+type EditMessageLiveLocationResponse = Message | Literal[True]
 class StopMessageLiveLocationRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int | None
+    chat_id: int | str | None
     message_id: int | None
     inline_message_id: str | None
     reply_markup: InlineKeyboardMarkup | None
-type StopMessageLiveLocationResponse = Literal[True] | Message
+type StopMessageLiveLocationResponse = Message | Literal[True]
 class EditMessageChecklistRequest(TypedDict):
     business_connection_id: str
     chat_id: int
@@ -2138,14 +2174,14 @@ class EditMessageChecklistRequest(TypedDict):
 type EditMessageChecklistResponse = Message
 class EditMessageReplyMarkupRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int | None
+    chat_id: int | str | None
     message_id: int | None
     inline_message_id: str | None
     reply_markup: InlineKeyboardMarkup | None
-type EditMessageReplyMarkupResponse = Literal[True] | Message
+type EditMessageReplyMarkupResponse = Message | Literal[True]
 class StopPollRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int
+    chat_id: int | str
     message_id: int
     reply_markup: InlineKeyboardMarkup | None
 type StopPollResponse = Poll
@@ -2160,11 +2196,11 @@ class DeclineSuggestedPostRequest(TypedDict):
     comment: str | None
 type DeclineSuggestedPostResponse = Literal[True]
 class DeleteMessageRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     message_id: int
 type DeleteMessageResponse = Literal[True]
 class DeleteMessagesRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     message_ids: list[int]
 type DeleteMessagesResponse = Literal[True]
 class Sticker(TypedDict):
@@ -2202,10 +2238,10 @@ class InputSticker(TypedDict):
     keywords: list[str] | None
 class SendStickerRequest(TypedDict):
     business_connection_id: str | None
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int | None
     direct_messages_topic_id: int | None
-    sticker: str | InputFile
+    sticker: InputFile | str
     emoji: str | None
     disable_notification: bool | None
     protect_content: bool | None
@@ -2213,7 +2249,7 @@ class SendStickerRequest(TypedDict):
     message_effect_id: str | None
     suggested_post_parameters: SuggestedPostParameters | None
     reply_parameters: ReplyParameters | None
-    reply_markup: ForceReply | ReplyKeyboardRemove | ReplyKeyboardMarkup | InlineKeyboardMarkup | None
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
 type SendStickerResponse = Message
 class GetStickerSetRequest(TypedDict):
     name: str
@@ -2271,7 +2307,7 @@ type SetStickerSetTitleResponse = Literal[True]
 class SetStickerSetThumbnailRequest(TypedDict):
     name: str
     user_id: int
-    thumbnail: str | InputFile | None
+    thumbnail: InputFile | str | None
     format: str
 type SetStickerSetThumbnailResponse = Literal[True]
 class SetCustomEmojiStickerSetThumbnailRequest(TypedDict):
@@ -2616,7 +2652,7 @@ class PreparedInlineMessage(TypedDict):
     id: str
     expiration_date: int
 class SendInvoiceRequest(TypedDict):
-    chat_id: str | int
+    chat_id: int | str
     message_thread_id: int | None
     direct_messages_topic_id: int | None
     title: str
@@ -2914,7 +2950,7 @@ class SetGameScoreRequest(TypedDict):
     chat_id: int | None
     message_id: int | None
     inline_message_id: str | None
-type SetGameScoreResponse = Literal[True] | Message
+type SetGameScoreResponse = Message | Literal[True]
 class GetGameHighScoresRequest(TypedDict):
     user_id: int
     chat_id: int | None
